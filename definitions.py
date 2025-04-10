@@ -163,6 +163,7 @@ class Server:
 class DataStore:
     players: list[Player]
     servers: list[Server]
+    sessions: list[str] = []
 
     def __init__(self, players: list[Player] = [], servers: list[Server] = []):
         self.players = players
