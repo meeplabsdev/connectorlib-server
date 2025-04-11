@@ -42,17 +42,40 @@ class Player:
     uuid: UUID
     name: str
     ip: str
+    network_data: dict
 
     def __init__(self, websocket=DummyWebSocket(("", 0)), uuid: str = "00000000-0000-0000-0000-000000000000", name: str = "") -> None:
         self.name = str(name)
         self.uuid = UUID(hex=uuid.replace("-", ""))
         self.ip = websocket.remote_address[0]
+        self.network_data = {
+            "ip": [],
+            "user_agent": [],
+            "encoding": [],
+            "mime": [],
+            "via": [],
+            "forwarded": [],
+            "language": [],
+        }
+
+    def add_network_data(self, data: dict) -> None:
+        for k in self.network_data.keys():
+            if k in data.keys():
+                if type(data[k]) is list:
+                    for item in data[k]:
+                        if item not in self.network_data[k] and item is not None:
+                            self.network_data[k].append(item)
+                else:
+                    item = data[k]
+                    if item not in self.network_data[k] and item is not None:
+                        self.network_data[k].append(item)
 
     def dump(self) -> dict:
         return {
             "uuid": self.uuid.hex,
             "name": self.name,
             "ip": self.ip,
+            "network_data": self.network_data,
         }
 
     def load(self, data: dict) -> Player:
@@ -62,6 +85,7 @@ class Player:
             data["name"],
         )
 
+        player.add_network_data(data["network_data"])
         return player
 
 
