@@ -64,8 +64,8 @@ async def handler(websocket):
                 resp: dict = json.dumps(resp)
                 await websocket.send(resp)
 
-        except Exception as _:
-            pass
+        except Exception as e:
+            print(e)
 
 
 async def main():
