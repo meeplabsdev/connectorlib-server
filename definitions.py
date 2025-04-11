@@ -96,14 +96,16 @@ class ServerPlayer:
     last_seen: datetime
     chat_history: list[str]
     pm_history: list[str]
+    advancements: list[str]
 
-    def __init__(self, websocket=None, player: Player = None, location: Coordinate = None, prev_locations: list[Coordinate] = [], chat_history = [], pm_history: []):
+    def __init__(self, websocket=None, player: Player = None, location: Coordinate = None, prev_locations: list[Coordinate] = [], chat_history=[], pm_history=[], advancements=[]):
         self.player = player
         self.last_location = location
         self.prev_locations = prev_locations
         self.last_seen = datetime.now(timezone.utc)
         self.chat_history = chat_history
         self.pm_history = pm_history
+        self.advancements = advancements
 
     def set_location(self, websocket, location: Coordinate):
         if self.last_location is not None:
@@ -122,6 +124,10 @@ class ServerPlayer:
 
     def add_pm(self, message: str):
         self.pm_history.append(message)
+
+    def add_advancement(self, advancement: str):
+        if advancement not in self.advancements:
+            self.advancements.append(advancement)
 
     def dump(self) -> dict:
         prev_locations = []
@@ -156,12 +162,12 @@ class ServerPlayer:
             player,
             Coordinate("", 0, 0, 0).load(data["last_location"]),
             prev_locations,
+            data["chat_history"],
+            data["pm_history"],
+            data["advancements"],
         )
 
         serverPlayer.set_seen(None, datetime.fromtimestamp(data["last_seen"]))
-        serverPlayer.chat_history = data["chat_history"]
-        serverPlayer.pm_history = data["pm_history"]
-        
         return serverPlayer
 
 
