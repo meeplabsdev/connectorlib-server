@@ -43,7 +43,7 @@ class IdentityChallenge(BaseHandler):
 
                 player: Player = Player(self.websocket, uuid, p["username"])
                 self.datastore.add_player(player)
-                self.player = player
+                self.websocket.player = player
 
                 return {
                     "session": session,

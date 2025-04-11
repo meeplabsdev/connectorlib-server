@@ -10,6 +10,11 @@ class BaseHandler:
         self.datastore = datastore
         self.websocket = websocket
 
+        try:
+            self.player = self.websocket.player
+        except Exception as _:
+            self.player = None
+
         if len(session) >= 32 and session in datastore.sessions:
             self.session = session
 
