@@ -94,12 +94,16 @@ class ServerPlayer:
     last_location: Coordinate
     prev_locations: list[Coordinate]
     last_seen: datetime
+    chat_history: list[str]
+    pm_history: list[str]
 
-    def __init__(self, websocket=None, player: Player = None, location: Coordinate = None, prev_locations: list[Coordinate] = []):
+    def __init__(self, websocket=None, player: Player = None, location: Coordinate = None, prev_locations: list[Coordinate] = [], chat_history = [], pm_history: []):
         self.player = player
         self.last_location = location
         self.prev_locations = prev_locations
         self.last_seen = datetime.now(timezone.utc)
+        self.chat_history = chat_history
+        self.pm_history = pm_history
 
     def set_location(self, websocket, location: Coordinate):
         if self.last_location is not None:
@@ -113,6 +117,12 @@ class ServerPlayer:
         else:
             self.last_seen = seen
 
+    def add_chat(self, message: str):
+        self.chat_history.append(message)
+
+    def add_pm(self, message: str):
+        self.pm_history.append(message)
+
     def dump(self) -> dict:
         prev_locations = []
         for pl in self.prev_locations:
@@ -123,6 +133,8 @@ class ServerPlayer:
             "last_location": self.last_location.dump(),
             "prev_locations": prev_locations,
             "last_seen": self.last_seen.timestamp(),
+            "chat_history": self.chat_history,
+            "pm_history": self.pm_history,
         }
 
     def load(self, data: dict, players: list[Player]) -> ServerPlayer:
@@ -147,6 +159,9 @@ class ServerPlayer:
         )
 
         serverPlayer.set_seen(None, datetime.fromtimestamp(data["last_seen"]))
+        serverPlayer.chat_history = data["chat_history"]
+        serverPlayer.pm_history = data["pm_history"]
+        
         return serverPlayer
 
 
