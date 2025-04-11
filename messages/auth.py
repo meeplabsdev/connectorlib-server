@@ -16,10 +16,10 @@ class IdentityRequest(BaseHandler):
         if uuid is None or username is None:
             return None
 
-        player_data: requests.Response = await requests.get(f"https://api.minetools.eu/uuid/{username}")
-        player_data: dict = await player_data.json()
+        player_data: requests.Response = requests.get(f"https://api.minetools.eu/uuid/{username}")
+        player_data: dict = player_data.json()
 
-        if uuid != player_data.get("uuid", ""):
+        if uuid.replace("-", "") != player_data.get("id", ""):
             return None
 
         nonce = m_uuid.uuid4().hex

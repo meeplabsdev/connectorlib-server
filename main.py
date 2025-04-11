@@ -54,14 +54,15 @@ async def handler(websocket):
             ).act(**data)
 
             if resp is not None:
-                id = resp.get("id", "")
+                id = resp.pop("id", "")
 
                 print(f"{Fore.LIGHTRED_EX}|→ {id}{Fore.RESET}")
                 for k in resp.keys():
                     if k != "authRequired":
                         print(f"   {k}: {resp.get(k)}")
 
-                resp: dict = json.dumps(resp)
+                resp["id"] = id
+                resp: str = json.dumps(resp)
                 await websocket.send(resp)
 
         except Exception as e:
