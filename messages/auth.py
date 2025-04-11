@@ -1,6 +1,7 @@
 import hashlib
 import uuid as m_uuid
 from datetime import datetime
+import requests
 
 from definitions import Player
 from messages.base import BaseHandler
@@ -13,7 +14,13 @@ inProgress = []
 class IdentityRequest(BaseHandler):
     async def act(self, uuid=None, username=None, **kwargs):
         if uuid is None or username is None:
-            return {}
+            return None
+
+        player_data: requests.Response = await requests.get(f"https://api.minetools.eu/uuid/{username}")
+        player_data: dict = await player_data.json()
+
+        if uuid != player_data.get("uuid", ""):
+            return None
 
         nonce = m_uuid.uuid4().hex
         expect = hashlib.sha256(f"{nonce}{KEY}".encode("utf-8")).hexdigest()
