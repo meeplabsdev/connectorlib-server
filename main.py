@@ -2,10 +2,11 @@ import asyncio
 import json
 
 import websockets
+from colorama import Fore, init
+
 from definitions import DataStore
 from handlers import HANDLERS
 from messages.base import BaseHandler
-from colorama import init, Fore
 
 init()
 

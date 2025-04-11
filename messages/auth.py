@@ -1,6 +1,7 @@
 import hashlib
 import uuid as m_uuid
 from datetime import datetime
+
 import requests
 
 from definitions import Player

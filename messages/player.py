@@ -1,5 +1,5 @@
-from messages.base import BaseHandler
 from definitions import Server
+from messages.base import BaseHandler
 
 
 class PlayerJoin(BaseHandler):

@@ -1,6 +1,7 @@
+from datetime import datetime, timezone
+
+from definitions import Coordinate, Server, ServerPlayer
 from messages.base import BaseHandler
-from definitions import Server, ServerPlayer, Coordinate
-from datetime import timezone, datetime
 
 
 class NetworkData(BaseHandler):
