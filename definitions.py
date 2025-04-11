@@ -7,24 +7,28 @@ from uuid import UUID
 
 
 class Coordinate:
+    dimension: str
     x: int
     y: int
     z: int
 
-    def __init__(self, x: int, y: int, z: int) -> None:
+    def __init__(self, dimension: str, x: int, y: int, z: int) -> None:
+        self.dimension = dimension
         self.x = x
         self.y = y
         self.z = z
 
     def dump(self) -> str:
-        return f"{self.x},{self.y},{self.z}"
+        return f"{self.dimension}@{self.x},{self.y},{self.z}"
 
     def load(self, data: str) -> Coordinate:
-        data = data.strip().split(",")
+        data = data.split("@")
+        dimension = data[0]
+        data = data[1].strip().split(",")
         if len(data) != 3:
             raise ValueError("Coordinate does not have 3 items.")
 
-        return Coordinate(int(data[0].strip()), int(data[1].strip()), int(data[2].strip()))
+        return Coordinate(dimension.strip(), int(data[0].strip()), int(data[1].strip()), int(data[2].strip()))
 
 
 class DummyWebSocket:
@@ -109,12 +113,12 @@ class ServerPlayer:
 
         prev_locations = []
         for pl in data["prev_locations"]:
-            prev_locations.append(Coordinate(0, 0, 0).load(pl))
+            prev_locations.append(Coordinate("", 0, 0, 0).load(pl))
 
         serverPlayer = ServerPlayer(
             None,
             player,
-            Coordinate(0, 0, 0).load(data["last_location"]),
+            Coordinate("", 0, 0, 0).load(data["last_location"]),
             prev_locations,
         )
 
@@ -195,6 +199,7 @@ class DataStore:
         return {
             "players": players,
             "servers": servers,
+            "sessions": self.sessions,
         }
 
     def load(self, data: dict) -> DataStore:
@@ -207,6 +212,8 @@ class DataStore:
         for s in data["servers"]:
             server = Server().load(s, datastore.players)
             datastore.add_server(server)
+
+        self.sessions = data["sessions"]
 
         return datastore
 
