@@ -141,6 +141,7 @@ class ServerPlayer:
             "last_seen": self.last_seen.timestamp(),
             "chat_history": self.chat_history,
             "pm_history": self.pm_history,
+            "advancements": self.advancements,
         }
 
     def load(self, data: dict, players: list[Player]) -> ServerPlayer:
