@@ -14,8 +14,15 @@ DATASTORE = DataStore().loadfile("datastore.json")
 
 async def save_datastore():
     while True:
-        DATASTORE.dumpfile("datastore.json")
         await asyncio.sleep(30)
+        DATASTORE.dumpfile("datastore.json")
+
+
+async def prune_sessions(server):
+    while True:
+        await asyncio.sleep(30)
+        if len(server.websockets) == 0:
+            DATASTORE.sessions = []
 
 
 async def handler(websocket):
@@ -57,16 +64,17 @@ async def handler(websocket):
                 resp: dict = json.dumps(resp)
                 await websocket.send(resp)
 
-        except Exception as e:
-            print(e)
+        except Exception as _:
+            pass
 
 
 async def main():
-    hello_world_task = asyncio.create_task(save_datastore())
     server = await websockets.serve(handler, "localhost", 3000)
-    print(f"{Fore.GREEN}Server Ready!")
+    prune_task = asyncio.create_task(prune_sessions(server))
+    save_task = asyncio.create_task(save_datastore())
+    print(f"{Fore.LIGHTGREEN_EX}Server Ready!{Fore.RESET}")
 
-    await asyncio.gather(server.wait_closed(), hello_world_task)
+    await asyncio.gather(server.wait_closed(), prune_task, save_task)
 
 
 if __name__ == "__main__":
