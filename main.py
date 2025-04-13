@@ -43,7 +43,11 @@ async def handler(websocket):
             print(f"{Fore.LIGHTBLUE_EX}|← {id}{Fore.LIGHTBLACK_EX} {extra}{Fore.RESET}")
             for k in data.keys():
                 if k != "authRequired":
-                    print(f"   {k}: {data.get(k)}")
+                    if type(data.get(k)) is list and len(data.get(k)) > 1:
+                        r = f"[{data.get(k)[0]}, ...]"
+                    else:
+                        r = data.get(k)
+                    print(f"   {k}: {r}")
 
             resp = await HANDLERS.get(
                 id,
@@ -60,7 +64,11 @@ async def handler(websocket):
                 print(f"{Fore.LIGHTRED_EX}|→ {id}{Fore.RESET}")
                 for k in resp.keys():
                     if k != "authRequired":
-                        print(f"   {k}: {resp.get(k)}")
+                        if type(resp.get(k)) is list and len(resp.get(k)) > 1:
+                            r = f"[{resp.get(k)[0]}, ...]"
+                        else:
+                            r = resp.get(k)
+                        print(f"   {k}: {r}")
 
                 resp["id"] = id
                 resp: str = json.dumps(resp)
