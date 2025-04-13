@@ -172,29 +172,60 @@ class ServerPlayer:
         return serverPlayer
 
 
+class Chunk:
+    blocks: list[str]
+    biome: str
+
+    def __init__(self, blocks: list[str], biome: str):
+        self.blocks = blocks
+        self.biome = biome
+
+    def dump(self) -> dict:
+        return {
+            "blocks": self.blocks,
+            "biome": self.biome,
+        }
+
+    def load(self, data: dict) -> Chunk:
+        return Chunk(
+            data["blocks"],
+            data["biome"],
+        )
+
+
 class Server:
     ip: str
     players: list[ServerPlayer]
+    chunks: dict[Coordinate, Chunk]
 
-    def __init__(self, websocket=None, ip: str = ""):
+    def __init__(self, websocket=None, ip: str = "", chunks={}):
         self.ip = ip
         self.players = []
+        self.chunks = chunks
 
-    def add_player(self, websocket, player: ServerPlayer):
+    def add_player(self, player: ServerPlayer):
         for p in self.players:
             if player.player.uuid.hex == p.player.uuid.hex:
                 return
 
         self.players.append(player)
 
+    def set_chunk(self, c: Coordinate, chunk: Chunk):
+        self.chunks[c] = chunk
+
     def dump(self) -> dict:
         players = []
         for p in self.players:
             players.append(p.dump())
 
+        chunks = {}
+        for k in self.chunks.keys():
+            chunks[k.dump()] = self.chunks[k].dump()
+
         return {
             "ip": self.ip,
             "players": players,
+            "chunks": chunks,
         }
 
     def load(self, data: dict, players: list[Player]) -> Server:
@@ -205,7 +236,12 @@ class Server:
 
         for p in data["players"]:
             player = ServerPlayer().load(p, players)
-            server.add_player(None, player)
+            server.add_player(player)
+
+        for c in data["chunks"].keys():
+            coord = Coordinate("", 0, 0, 0).load(c)
+            chunk = Chunk([], []).load(data["chunks"].get(c, {}))
+            server.set_chunk(coord, chunk)
 
         return server
 
@@ -240,6 +276,7 @@ class DataStore:
 
         servers = []
         for s in self.servers:
+            # if s.ip is not None and s.ip != "unknown":
             servers.append(s.dump())
 
         return {

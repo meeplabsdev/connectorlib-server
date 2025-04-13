@@ -1,4 +1,4 @@
-from messages import auth, data, player
+from messages import auth, data, player, chunk
 
 HANDLERS = {
     "IdentityRequest": auth.IdentityRequest,
@@ -12,4 +12,6 @@ HANDLERS = {
     "PlayerQuit": player.PlayerQuit,
     "PlayerRespawn": player.PlayerRespawn,
     "PlayerAdvancement": player.PlayerAdvancement,
+    "ChunkRequest": chunk.ChunkRequest,
+    "ChunkData": chunk.ChunkData,
 }

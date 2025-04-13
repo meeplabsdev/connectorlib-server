@@ -48,7 +48,6 @@ class PositionData(BaseHandler):
 
         if not found and self.player is not None:
             server.add_player(
-                self.websocket,
                 ServerPlayer(
                     self.websocket,
                     self.player,
