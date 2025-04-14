@@ -90,6 +90,32 @@ class DB:
                 chunk_z=chunk_z,
             )
 
+    class Locations(Table):
+        def __init__(self, conn, cur):
+            super().__init__(conn, cur)
+            self.name = "locations"
+
+        def add(self, server_player_id: int, dimension: int, global_x: int, global_y: int, global_z: int):
+            return self._add(
+                server_player_id=server_player_id,
+                dimension=dimension,
+                global_x=global_x,
+                global_y=global_y,
+                global_z=global_z,
+                visited=CURRENT_TIMESTAMP(),
+            )
+
+    class Messages(Table):
+        def __init__(self, conn, cur):
+            super().__init__(conn, cur)
+            self.name = "messages"
+
+        def add(self, server_player_id: int, message: str):
+            return self._add(
+                server_player_id=server_player_id,
+                message=message,
+            )
+
     class NetworkData(Table):
         def __init__(self, conn, cur) -> None:
             super().__init__(conn, cur)
@@ -190,6 +216,8 @@ class DB:
         self.dimensions = self.LookupTable(self.conn, self.cur, "dimensions")
 
         self.chunks = self.Chunks(self.conn, self.cur)
+        self.locations = self.Locations(self.conn, self.cur)
+        self.messages = self.Messages(self.conn, self.cur)
         self.network_data = self.NetworkData(self.conn, self.cur)
         self.players = self.Players(self.conn, self.cur)
         self.server_players = self.ServerPlayers(self.conn, self.cur)
@@ -230,3 +258,6 @@ if __name__ == "__main__":
     splayer2 = db.server_players.add(player, server2)
     splayer3 = db.server_players.add(player2, server)
     splayer4 = db.server_players.add(player2, server2)
+
+    location = db.locations.add(splayer, dimension, 1, 2, 3)
+    message = db.messages.add(splayer2, "this is a test message")
