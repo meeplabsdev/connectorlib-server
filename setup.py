@@ -5,7 +5,7 @@ conn = psycopg2.connect(host="localhost", port="5432", database="connectorlib", 
 cur = conn.cursor()
 
 if __name__ == "__main__":
-    with open("config/connectorlib.sql", "r") as f:
+    with open("config/setup.sql", "r") as f:
         cur.execute(f.read().strip())
 
     try:
