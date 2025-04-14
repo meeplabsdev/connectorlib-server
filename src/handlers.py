@@ -3,7 +3,6 @@ from messages import auth, data, player, chunk
 HANDLERS = {
     "IdentityRequest": auth.IdentityRequest,
     "IdentityChallenge": auth.IdentityChallenge,
-    "DataRequest": data.DataRequest,
     "NetworkData": data.NetworkData,
     "PositionData": data.PositionData,
     "ChatData": data.ChatData,
