@@ -4,21 +4,38 @@ services:
     environment:
       POSTGRES_USER: connectorlib
       POSTGRES_PASSWORD: connectorlib
-    ports:
-      - 5432:5432
+      POSTGRES_DB: connectorlib
     volumes:
       - postgres:/var/lib/postgresql/data
     networks:
       - db_network
     container_name: postgres
+    restart: on-failure
     image: postgres
 
-  pgadmin:
+  pgbouncer:
+    environment:
+      DATABASE_URL: postgres://connectorlib:connectorlib@postgres:5432/connectorlib
+      POOL_MODE: transaction
+      MAX_DB_CONNECTIONS: 100
+      DEFAULT_POOL_SIZE: 40
+      AUTH_TYPE: scram-sha-256
     ports:
-      - 8080:80
+      - 5432:5432
+    depends_on:
+      - postgres
+    networks:
+      - db_network
+    container_name: pgbouncer
+    restart: on-failure
+    image: rmccaffrey/pgbouncer:latest
+
+  pgadmin:
     environment:
       PGADMIN_DEFAULT_EMAIL: connectorlib@local.host
       PGADMIN_DEFAULT_PASSWORD: connectorlib
+    ports:
+      - 8080:80
     volumes:
       - pgadmin:/var/lib/pgadmin
     networks:
@@ -26,6 +43,7 @@ services:
     depends_on:
       - postgres
     container_name: pgadmin
+    restart: on-failure
     image: dpage/pgadmin4
 
 networks:
