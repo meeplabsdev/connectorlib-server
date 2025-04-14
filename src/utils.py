@@ -29,11 +29,18 @@ class DB:
             self.commit()
 
         def _add(self, **kwargs) -> int:
-            _fields = kwargs.keys()
+            _fields = list(kwargs.keys())
             fields = ", ".join(_fields)
             _values = [f"'{v}'" if type(v) is str else str(v) for v in kwargs.values()]
             values = ", ".join(_values)
-            where = " and ".join([f"{f} = {v}" for f, v in zip(_fields, _values)])
+
+            self.cur.execute(f"select column_name from information_schema.columns where table_name = '{self.name}' and data_type like 'timestamp%%';")
+            timestamps = [str(i[0]) for i in self.cur.fetchall()]
+            _where = []
+            for f, v in zip(_fields, _values):
+                if f not in timestamps:
+                    _where.append(f"{f} = {v}")
+            where = " and ".join(_where)
 
             self.cur.execute(f"select id from {self.name} where {where};")
             items = self.cur.fetchall()
@@ -174,6 +181,7 @@ class DB:
             )
 
     def __init__(self) -> None:
+        # conn = psycopg2.connect(host="postgres", port="5432", database="connectorlib", user="connectorlib", password="connectorlib")
         self.conn = psycopg2.connect(host="localhost", port="5432", database="connectorlib", user="connectorlib", password="connectorlib")
         self.cur = self.conn.cursor()
 
@@ -195,4 +203,30 @@ if __name__ == "__main__":
     db = DB()
     print("DB Ready!")
 
-    db.servers.add("Arlie Server", "mc.axo.llc")
+    biome = db.biomes.add("taiga")
+    block = db.blocks.add("stone")
+    dimension = db.dimensions.add("overworld")
+
+    server = db.servers.add("Arlie Server", "mc.axo.llc")
+    server2 = db.servers.add("James Server", "lag.aternos.me")
+    uptime = db.server_uptime.add(server)
+    uptime2 = db.server_uptime.add(server2)
+    chunk = db.chunks.add(server, dimension, biome, 64, 3, 2)
+    chunk2 = db.chunks.add(server, dimension, biome, 64, 4, 2)
+    chunk3 = db.chunks.add(server2, dimension, biome, 64, 3, 2)
+    chunk4 = db.chunks.add(server2, dimension, biome, 64, 4, 2)
+    surface = db.surface_blocks.add(chunk, block, 65, 0, 0)
+    surface2 = db.surface_blocks.add(chunk2, block, 63, 0, 0)
+    surface3 = db.surface_blocks.add(chunk3, block, 64, 7, 0)
+    surface4 = db.surface_blocks.add(chunk4, block, 61, 0, 1)
+
+    player = db.players.add("e39ee8310599438fb107cf97e246fc92", "Biffot")
+    player2 = db.players.add("62eaea5762cb458c8007d6c5e652c2a7", "floridarosie")
+    network = db.network_data.add(player, "1.2.3.4", "My/Agent 1.2", "1.1 google", "1.2.3.4,8.7.6.5")
+    network2 = db.network_data.add(player2, "1.2.3.4", "My/Agent 1.2", "1.1 google", "1.2.3.4,8.7.6.5")
+    session = db.sessions.add("mytokenhere", player)
+    session2 = db.sessions.add("anothertoken", player)
+    splayer = db.server_players.add(player, server)
+    splayer2 = db.server_players.add(player, server2)
+    splayer3 = db.server_players.add(player2, server)
+    splayer4 = db.server_players.add(player2, server2)
