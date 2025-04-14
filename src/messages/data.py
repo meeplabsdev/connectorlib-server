@@ -115,16 +115,3 @@ class SystemChatData(BaseHandler):
 
         sPlayer.add_pm(f"!! -> {recipient}: {message}")
         sPlayer.add_chat(f"!! -> {recipient}: {message}")
-
-
-class DataRequest(BaseHandler):
-    async def act(self, **kwargs):
-        if self.session is None or self.session == "":
-            return None
-
-        response = {
-            "id": "DataResponse",
-        }
-
-        response.update(self.datastore.dump())
-        return response
