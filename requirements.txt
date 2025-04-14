@@ -3,3 +3,4 @@ websockets
 colorama
 requests
 psycopg2
+types-psycopg2
