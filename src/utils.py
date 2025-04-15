@@ -1,4 +1,12 @@
+from pathlib import Path
+
 import psycopg2
+from psycopg2 import sql
+
+
+def is_docker():
+    cgroup = Path("/proc/self/cgroup")
+    return Path("/.dockerenv").is_file() or (cgroup.is_file() and "docker" in cgroup.read_text())
 
 
 class CURRENT_TIMESTAMP:
@@ -207,8 +215,13 @@ class DB:
             )
 
     def __init__(self) -> None:
-        # conn = psycopg2.connect(host="postgres", port="5432", database="connectorlib", user="connectorlib", password="connectorlib")
-        self.conn = psycopg2.connect(host="localhost", port="5432", database="connectorlib", user="connectorlib", password="connectorlib")
+        self.conn = psycopg2.connect(
+            host="postgres" if is_docker() else "localhost",
+            port="5432",
+            database="connectorlib",
+            user="connectorlib",
+            password="connectorlib",
+        )
         self.cur = self.conn.cursor()
 
         self.biomes = self.LookupTable(self.conn, self.cur, "biomes")
@@ -226,9 +239,35 @@ class DB:
         self.sessions = self.Sessions(self.conn, self.cur)
         self.surface_blocks = self.SurfaceBlocks(self.conn, self.cur)
 
+    def setup(self) -> None:
+        self.cur.execute("""
+            SELECT s.nspname as schema_name, t.relname as table_name
+            FROM pg_class t 
+            JOIN pg_namespace s ON s.oid = t.relnamespace
+            WHERE t.relkind = 'r'
+            AND s.nspname !~ '^pg_' 
+            AND s.nspname != 'information_schema'
+            ORDER BY 1, 2;
+        """)
+
+        for schema, table in self.cur.fetchall():
+            print(f"Dropping {schema}.{table}")
+            self.cur.execute(sql.SQL("DROP TABLE IF EXISTS {}.{} CASCADE").format(sql.Identifier(schema), sql.Identifier(table)))
+
+        print("Creating new tables and relations")
+        with open("config/setup.sql", "r") as f:
+            self.cur.execute(f.read().strip())
+
+        try:
+            self.conn.commit()
+        except psycopg2.Error as e:
+            self.conn.rollback()
+            raise e
+
 
 if __name__ == "__main__":
     db = DB()
+    db.setup()
     print("DB Ready!")
 
     biome = db.biomes.add("taiga")
