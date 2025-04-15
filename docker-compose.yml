@@ -28,12 +28,13 @@ services:
       - db_network
     container_name: pgbouncer
     restart: on-failure
-    image: rmccaffrey/pgbouncer:latest
+    image: rmccaffrey/pgbouncer
 
   pgadmin:
     environment:
       PGADMIN_DEFAULT_EMAIL: connectorlib@local.host
       PGADMIN_DEFAULT_PASSWORD: connectorlib
+      PGADMIN_DISABLE_POSTFIX: true
     ports:
       - 8080:80
     volumes:
@@ -42,6 +43,7 @@ services:
       - db_network
     depends_on:
       - postgres
+      - pgbouncer
     container_name: pgadmin
     restart: on-failure
     image: dpage/pgadmin4
