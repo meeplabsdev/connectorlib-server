@@ -4,3 +4,4 @@ colorama
 requests
 psycopg2
 types-psycopg2
+multipledispatch
