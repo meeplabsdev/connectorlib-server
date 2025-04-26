@@ -4,7 +4,6 @@ from datetime import datetime
 
 import requests
 
-from definitions import Player
 from messages.base import BaseHandler
 
 KEY = "thisIsATestKey!"
@@ -38,22 +37,22 @@ class IdentityRequest(BaseHandler):
         }
 
 
-class IdentityChallenge(BaseHandler):
-    async def act(self, uuid=None, result=None, **kwargs):
-        if uuid is None or result is None:
-            return {}
+# class IdentityChallenge(BaseHandler):
+#     async def act(self, uuid=None, result=None, **kwargs):
+#         if uuid is None or result is None:
+#             return {}
 
-        for p in inProgress:
-            if p["uuid"] == uuid and p["expect"] == result:
-                session = m_uuid.uuid4().hex
-                self.datastore.sessions.append(session)
-                inProgress.remove(p)
+#         for p in inProgress:
+#             if p["uuid"] == uuid and p["expect"] == result:
+#                 session = m_uuid.uuid4().hex
+#                 self.datastore.sessions.append(session)
+#                 inProgress.remove(p)
 
-                player: Player = Player(self.websocket, uuid, p["username"])
-                self.datastore.add_player(player)
-                self.websocket.player = player
+#                 player: Player = Player(self.websocket, uuid, p["username"])
+#                 self.datastore.add_player(player)
+#                 self.websocket.player = player
 
-                return {
-                    "session": session,
-                    "id": "IdentitySession",
-                }
+#                 return {
+#                     "session": session,
+#                     "id": "IdentitySession",
+#                 }

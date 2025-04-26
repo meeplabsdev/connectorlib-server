@@ -1,5 +1,4 @@
 from messages.base import BaseHandler
-from definitions import Coordinate, Server, Chunk
 
 
 class ChunkRequest(BaseHandler):
@@ -18,20 +17,20 @@ class ChunkRequest(BaseHandler):
             }
 
 
-class ChunkData(BaseHandler):
-    async def act(self, ip=None, dimension=None, cx=None, cz=None, blockKeys=None, biomeKey=None, height=None, **kwargs):
-        if self.session is None or self.session == "":
-            return None
+# class ChunkData(BaseHandler):
+#     async def act(self, ip=None, dimension=None, cx=None, cz=None, blockKeys=None, biomeKey=None, height=None, **kwargs):
+#         if self.session is None or self.session == "":
+#             return None
 
-        server: Server = Server(self.websocket, ip)
-        self.datastore.add_server(server)
+#         server: Server = Server(self.websocket, ip)
+#         self.datastore.add_server(server)
 
-        server = None
-        for s in self.datastore.servers:
-            if s.ip == ip:
-                server = s
+#         server = None
+#         for s in self.datastore.servers:
+#             if s.ip == ip:
+#                 server = s
 
-        if server is None:
-            return
+#         if server is None:
+#             return
 
-        server.set_chunk(Coordinate(dimension, cx, height, cz), Chunk(blockKeys, biomeKey))
+#         server.set_chunk(Coordinate(dimension, cx, height, cz), Chunk(blockKeys, biomeKey))
