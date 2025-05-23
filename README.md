@@ -1,4 +1,1 @@
-# connectorlib-server
-The server code for connectorlib.
-
-[ERL Diagram for DB](https://dbdiagram.io/d/connectorlib-67fc40e94f7afba1846feef2)
+The server code for connectorlib. For more information or the documentation, visit [github.com/meeplabsdev/connectorlib](https://github.com/meeplabsdev/connectorlib) or view the [ERL Diagram for the DB](https://dbdiagram.io/d/connectorlib-67fc40e94f7afba1846feef2).
