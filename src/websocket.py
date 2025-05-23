@@ -33,10 +33,11 @@ class Websocket:
                 print(f"{Fore.LIGHTBLUE_EX}|← {id}{Fore.LIGHTBLACK_EX} {extra}{Fore.RESET}")
                 for k in data.keys():
                     if k != "authRequired":
-                        if type(data.get(k)) is list and len(data.get(k)) > 1:
-                            r = f"[{data.get(k)[0]}, ...]"
+                        item: Any = data.get(k)
+                        if type(item) is list and len(item) > 1:
+                            r = f"[{item[0]}, ...]"
                         else:
-                            r = data.get(k)
+                            r = item
                         print(f"   {k}: {r}")
 
                 resp: dict[str, Any] | None = None
@@ -68,6 +69,6 @@ class Websocket:
                 print(e)
 
     async def serve(self):
-        self.server = await websockets.serve(self.handler, "localhost", 3000)
+        self.server = await websockets.serve(self.handler, "localhost", 3000)  # type: ignore
         print(f"{Fore.LIGHTGREEN_EX}Server Ready!{Fore.RESET}")
-        await self.server.wait_closed()
+        await self.server.wait_closed()  # type: ignore
