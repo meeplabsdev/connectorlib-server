@@ -322,16 +322,11 @@ class DB:
 
 
 class Definitions:
-    db: DB
-
-    def __init__(self, db: DB):
-        self.db = db
-
     class Biome:
         id: int
         val: str
 
-        def __init__(self, biome: str):
+        def __init__(self, db: DB, biome: str):
             self.val = biome
 
             obj = db.biomes.get(biome)
@@ -341,7 +336,7 @@ class Definitions:
         id: int
         val: str
 
-        def __init__(self, block: str):
+        def __init__(self, db: DB, block: str):
             self.val = block
 
             obj = db.blocks.get(block)
@@ -351,7 +346,7 @@ class Definitions:
         id: int
         val: str
 
-        def __init__(self, dimension: str):
+        def __init__(self, db: DB, dimension: str):
             self.val = dimension
 
             obj = db.dimensions.get(dimension)
@@ -368,6 +363,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             server: Definitions.Server,
             dimension: Definitions.Dimension,
             biome: Definitions.Biome,
@@ -396,6 +392,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             server_player: Definitions.ServerPlayer,
             dimension: Definitions.Dimension,
             global_x: int,
@@ -421,6 +418,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             server_player: Definitions.ServerPlayer,
             message: str,
             from_uuid: UUID,
@@ -444,6 +442,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             player: Definitions.Player,
             ip_address: str,
             user_agent: str,
@@ -466,6 +465,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             uuid: UUID,
             username: str,
         ):
@@ -482,6 +482,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             player: Definitions.Player,
             server: Definitions.Server,
         ):
@@ -498,6 +499,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             server: Definitions.Server,
         ):
             self.server = server
@@ -517,6 +519,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             name: str,
             ip_address: str,
         ):
@@ -533,6 +536,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             token: str,
             player: Definitions.Player,
         ) -> None:
@@ -552,6 +556,7 @@ class Definitions:
 
         def __init__(
             self,
+            db: DB,
             chunk: Definitions.Chunk,
             block: Definitions.Block,
             global_y: int,
@@ -568,27 +573,27 @@ class Definitions:
             self.id = obj[0] if obj is not None else db.surface_blocks.add(chunk.id, block.id, global_y, offset_x, offset_z)[0]
 
 
-if __name__ == "__main__":
-    db = DB()
-    db.setup()
+# if __name__ == "__main__":
+#     db = DB()
+#     db.setup()
 
-    # definitions = Definitions(db)
-    # biome = definitions.Biome("plains")
-    # block = definitions.Block("gravel")
-    # dimension = definitions.Dimension("overworld")
+# definitions = Definitions(db)
+# biome = definitions.Biome("plains")
+# block = definitions.Block("gravel")
+# dimension = definitions.Dimension("overworld")
 
-    # server = definitions.Server("Arlie Server", "mc.axo.llc")
-    # player = definitions.Player(UUID(int=1), "floridarosie")
+# server = definitions.Server("Arlie Server", "mc.axo.llc")
+# player = definitions.Player(UUID(int=1), "floridarosie")
 
-    # server_uptime = definitions.ServerUptime(server)
-    # chunk = definitions.Chunk(server, dimension, biome, 64, 3, 4)
+# server_uptime = definitions.ServerUptime(server)
+# chunk = definitions.Chunk(server, dimension, biome, 64, 3, 4)
 
-    # network_data = definitions.NetworkData(player, "5.4.3.2", "Java 21.6", "google v1.1", ["5.4.3.2", "8.8.8.8"])
-    # session = definitions.Session("thisismytoken", player)
+# network_data = definitions.NetworkData(player, "5.4.3.2", "Java 21.6", "google v1.1", ["5.4.3.2", "8.8.8.8"])
+# session = definitions.Session("thisismytoken", player)
 
-    # server_player = definitions.ServerPlayer(player, server)
-    # location = definitions.Location(server_player, dimension, 12, 65, 186)
-    # message = definitions.Message(server_player, "Hello, World!", UUID(int=1), UUID(int=0))
-    # surface_block = definitions.SurfaceBlock(chunk, block, 63, 0, 0)
+# server_player = definitions.ServerPlayer(player, server)
+# location = definitions.Location(server_player, dimension, 12, 65, 186)
+# message = definitions.Message(server_player, "Hello, World!", UUID(int=1), UUID(int=0))
+# surface_block = definitions.SurfaceBlock(chunk, block, 63, 0, 0)
 
-    # print(f"{biome.id=}, {block.id=}, {dimension.id=}, {server.id=}, {player.id=}, {server_uptime.id=}, {chunk.id=}, {network_data.id=}, {session.id=}, {server_player.id=}, {location.id=}, {message.id=}, {surface_block.id=}")
+# print(f"{biome.id=}, {block.id=}, {dimension.id=}, {server.id=}, {player.id=}, {server_uptime.id=}, {chunk.id=}, {network_data.id=}, {session.id=}, {server_player.id=}, {location.id=}, {message.id=}, {surface_block.id=}")

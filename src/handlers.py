@@ -1,9 +1,10 @@
-from messages import auth, data, player, chunk
+from typing import Type
+from messages import auth, data, player, chunk, base
 
-HANDLERS = {
+HANDLERS: dict[str, Type[base.BaseHandler]] = {
     "IdentityRequest": auth.IdentityRequest,
-    # "IdentityChallenge": auth.IdentityChallenge,
-    "NetworkData": data.NetworkData,
+    "IdentityChallenge": auth.IdentityChallenge,
+    # "NetworkData": data.NetworkData,
     # "PositionData": data.PositionData,
     # "ChatData": data.ChatData,
     # "SystemChatData": data.SystemChatData,
@@ -11,6 +12,6 @@ HANDLERS = {
     # "PlayerQuit": player.PlayerQuit,
     # "PlayerRespawn": player.PlayerRespawn,
     # "PlayerAdvancement": player.PlayerAdvancement,
-    "ChunkRequest": chunk.ChunkRequest,
+    # "ChunkRequest": chunk.ChunkRequest,
     # "ChunkData": chunk.ChunkData,
 }

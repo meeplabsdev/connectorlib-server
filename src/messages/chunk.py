@@ -1,20 +1,20 @@
 from messages.base import BaseHandler
 
 
-class ChunkRequest(BaseHandler):
-    async def act(self, ip=None, dimension=None, cx=None, cz=None, **kwargs):
-        if self.session is None or self.session == "":
-            return None
+# class ChunkRequest(BaseHandler):
+#     async def act(self, ip=None, dimension=None, cx=None, cz=None, **kwargs):
+#         if self.session is None or self.session == "":
+#             return None
 
-        needThatChunk = True
-        if needThatChunk:
-            return {
-                "id": "ChunkData",
-                "ip": ip,
-                "dimension": dimension,
-                "cx": cx,
-                "cz": cz,
-            }
+#         needThatChunk = True
+#         if needThatChunk:
+#             return {
+#                 "id": "ChunkData",
+#                 "ip": ip,
+#                 "dimension": dimension,
+#                 "cx": cx,
+#                 "cz": cz,
+#             }
 
 
 # class ChunkData(BaseHandler):

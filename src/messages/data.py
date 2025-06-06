@@ -3,21 +3,21 @@ from datetime import datetime, timezone
 from messages.base import BaseHandler
 
 
-class NetworkData(BaseHandler):
-    async def act(self, ip=None, user_agent=None, encoding=None, mime=None, via=None, forwarded=None, language=None, **kwargs):
-        if self.session is None or self.session == "":
-            return None
+# class NetworkData(BaseHandler):
+#     async def act(self, ip=None, user_agent=None, encoding=None, mime=None, via=None, forwarded=None, language=None, **kwargs):
+#         if self.session is None or self.session == "":
+#             return None
 
-        self.player.add_network_data(
-            {
-                "ip": ip,
-                "user_agent": user_agent,
-                "encoding": encoding,
-                "mime": mime,
-                "via": via,
-                "forwarded": forwarded.split(","),
-            }
-        )
+#         self.player.add_network_data(
+#             {
+#                 "ip": ip,
+#                 "user_agent": user_agent,
+#                 "encoding": encoding,
+#                 "mime": mime,
+#                 "via": via,
+#                 "forwarded": forwarded.split(","),
+#             }
+#         )
 
 
 # class PositionData(BaseHandler):

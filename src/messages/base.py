@@ -1,19 +1,12 @@
-# class BaseHandler:
-#     datastore: DataStore
-#     player: Player = None
-#     session: str = ""
+from typing import Any, TYPE_CHECKING
 
-#     def __init__(self, datastore: DataStore, websocket, session):
-#         self.datastore = datastore
-#         self.websocket = websocket
+if TYPE_CHECKING:
+    from websocket import Websocket
 
-#         try:
-#             self.player = self.websocket.player
-#         except Exception as _:
-#             self.player = None
 
-#         if len(session) >= 32 and session in datastore.sessions:
-#             self.session = session
+class BaseHandler:
+    def __init__(self, websocket: "Websocket") -> None:
+        self.ws = websocket
 
-#     async def act(self, **kwargs):
-#         return None
+    async def act(self, **kwargs: list[Any]) -> dict[str, Any] | None:
+        return None
