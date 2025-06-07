@@ -1,23 +1,15 @@
 from datetime import datetime, timezone
+from typing import Any
 
 from messages.base import BaseHandler
 
 
-# class NetworkData(BaseHandler):
-#     async def act(self, ip=None, user_agent=None, encoding=None, mime=None, via=None, forwarded=None, language=None, **kwargs):
-#         if self.session is None or self.session == "":
-#             return None
+class NetworkData(BaseHandler):
+    async def act(self, ip: str = "", user_agent: str = "", _encoding: str = "", _mime: str = "", via: str = "", forwarded: str = "", _language: str = "", **kwargs: list[Any]):
+        if self.ws.session is None:
+            return None
 
-#         self.player.add_network_data(
-#             {
-#                 "ip": ip,
-#                 "user_agent": user_agent,
-#                 "encoding": encoding,
-#                 "mime": mime,
-#                 "via": via,
-#                 "forwarded": forwarded.split(","),
-#             }
-#         )
+        self.ws.de.NetworkData(self.ws.db, self.ws.session.player, ip, user_agent, via, forwarded.split(","))
 
 
 # class PositionData(BaseHandler):
