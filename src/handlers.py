@@ -10,7 +10,7 @@ HANDLERS: dict[str, Type[base.BaseHandler]] = {
     "SystemChatData": data.SystemChatData,
     "PlayerJoin": player.PlayerJoin,
     "PlayerQuit": player.PlayerQuit,
-    # "PlayerRespawn": player.PlayerRespawn,
+    "PlayerRespawn": player.PlayerRespawn,
     # "PlayerAdvancement": player.PlayerAdvancement,
     # "ChunkRequest": chunk.ChunkRequest,
     # "ChunkData": chunk.ChunkData,
