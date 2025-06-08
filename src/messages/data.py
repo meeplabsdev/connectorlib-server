@@ -86,30 +86,13 @@ class ChatData(BaseHandler):
         # TODO: figure out how to find the UUID for sender and recipient, will need to modify client side message
 
 
-# class SystemChatData(BaseHandler):
-#     async def act(self, ip=None, message=None, recipient=None, **kwargs):
-#         if self.session is None or self.session == "":
-#             return None
+class SystemChatData(BaseHandler):
+    async def act(self, ip: str = "Unknown", message: str = "", recipient: str = "Global Chat", **kwargs: list[Any]):
+        if self.ws.session is None:
+            return None
 
-#         server: Server = Server(self.websocket, ip)
-#         self.datastore.add_server(server)
+        server = self.ws.de.Server(self.ws.db, ip, ip)
+        s_player = self.ws.de.ServerPlayer(self.ws.db, self.ws.session.player, server)
 
-#         server = None
-#         for s in self.datastore.servers:
-#             if s.ip == ip:
-#                 server = s
-
-#         if server is None:
-#             return
-
-#         sPlayer = None
-#         for p in server.players:
-#             if p.player.uuid == self.player.uuid:
-#                 sPlayer = p
-#                 break
-
-#         if sPlayer is None:
-#             return
-
-#         sPlayer.add_pm(f"!! -> {recipient}: {message}")
-#         sPlayer.add_chat(f"!! -> {recipient}: {message}")
+        self.ws.de.Message(self.ws.db, s_player, message, uuid.UUID(int=1), uuid.UUID(int=1))
+        # TODO: figure out how to find the UUID for sender and recipient, will need to modify client side message

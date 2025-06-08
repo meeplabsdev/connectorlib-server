@@ -7,7 +7,7 @@ HANDLERS: dict[str, Type[base.BaseHandler]] = {
     "NetworkData": data.NetworkData,
     "PositionData": data.PositionData,
     "ChatData": data.ChatData,
-    # "SystemChatData": data.SystemChatData,
+    "SystemChatData": data.SystemChatData,
     # "PlayerJoin": player.PlayerJoin,
     # "PlayerQuit": player.PlayerQuit,
     # "PlayerRespawn": player.PlayerRespawn,
