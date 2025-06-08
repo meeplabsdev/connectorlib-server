@@ -20,20 +20,10 @@ class ChunkRequest(BaseHandler):
             }
 
 
-# class ChunkData(BaseHandler):
-#     async def act(self, ip=None, dimension=None, cx=None, cz=None, blockKeys=None, biomeKey=None, height=None, **kwargs) -> dict[str, Any] | None:
-#         if self.session is None or self.session == "":
-#             return None
+class ChunkData(BaseHandler):
+    async def act(self, ip: str = "Unknown", dimension: str = "", cx: int | None = None, cz: int | None = None, blockKeys: list[str] = [], biomeKey: str = "", height: int | None = None, **kwargs: list[Any]) -> dict[str, Any] | None:
+        if self.ws.session or cx is None or cz is None or height is None:
+            return None
 
-#         server: Server = Server(self.websocket, ip)
-#         self.datastore.add_server(server)
-
-#         server = None
-#         for s in self.datastore.servers:
-#             if s.ip == ip:
-#                 server = s
-
-#         if server is None:
-#             return
-
-#         server.set_chunk(Coordinate(dimension, cx, height, cz), Chunk(blockKeys, biomeKey))
+        server = self.ws.de.Server(self.ws.db, ip, ip)
+        self.ws.de.Chunk(self.ws.db, server, self.ws.de.Dimension(self.ws.db, dimension), self.ws.de.Biome(self.ws.db, biomeKey), height, cx, cz)

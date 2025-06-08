@@ -12,5 +12,5 @@ HANDLERS: dict[str, Type[base.BaseHandler]] = {
     "PlayerQuit": player.PlayerQuit,
     "PlayerRespawn": player.PlayerRespawn,
     "ChunkRequest": chunk.ChunkRequest,
-    # "ChunkData": chunk.ChunkData,
+    "ChunkData": chunk.ChunkData,
 }
