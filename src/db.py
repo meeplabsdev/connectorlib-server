@@ -573,9 +573,9 @@ class Definitions:
             self.id = obj[0] if obj is not None else db.surface_blocks.add(chunk.id, block.id, global_y, offset_x, offset_z)[0]
 
 
-# if __name__ == "__main__":
-#     db = DB()
-#     db.setup()
+if __name__ == "__main__":
+    db = DB()
+    db.setup()
 
 # definitions = Definitions(db)
 # biome = definitions.Biome("plains")

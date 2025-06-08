@@ -44,7 +44,7 @@ class ChunkData(BaseHandler):
         height: int | None = None,
         **kwargs: list[Any],
     ) -> dict[str, Any] | None:
-        if self.ws.session or cx is None or cz is None or height is None:
+        if self.ws.session is None or cx is None or cz is None or height is None:
             return None
 
         server = self.ws.de.Server(self.ws.db, ip, ip)
