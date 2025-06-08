@@ -8,7 +8,7 @@ from messages.base import BaseHandler
 
 
 class NetworkData(BaseHandler):
-    async def act(self, ip: str = "", user_agent: str = "", _encoding: str = "", _mime: str = "", via: str = "", forwarded: str = "", _language: str = "", **kwargs: list[Any]):
+    async def act(self, ip: str = "", user_agent: str = "", _encoding: str = "", _mime: str = "", via: str = "", forwarded: str = "", _language: str = "", **kwargs: list[Any]) -> dict[str, Any] | None:
         if self.ws.session is None:
             return None
 
@@ -16,7 +16,7 @@ class NetworkData(BaseHandler):
 
 
 class PositionData(BaseHandler):
-    async def act(self, ip: str = "Unknown", dimension: str = "", x: int | None = None, y: int | None = None, z: int | None = None, **kwargs: list[Any]):
+    async def act(self, ip: str = "Unknown", dimension: str = "", x: int | None = None, y: int | None = None, z: int | None = None, **kwargs: list[Any]) -> dict[str, Any] | None:
         if self.ws.session is None or x is None or y is None or z is None:
             return None
 
@@ -74,7 +74,7 @@ class ChatData(BaseHandler):
 
         return message.strip()
 
-    async def act(self, ip: str = "Unknown", message: str = "", sender: str = "", recipient: str = "Global Chat", **kwargs: list[Any]):
+    async def act(self, ip: str = "Unknown", message: str = "", sender: str = "", recipient: str = "Global Chat", **kwargs: list[Any]) -> dict[str, Any] | None:
         if self.ws.session is None:
             return None
 
@@ -87,7 +87,7 @@ class ChatData(BaseHandler):
 
 
 class SystemChatData(BaseHandler):
-    async def act(self, ip: str = "Unknown", message: str = "", recipient: str = "Global Chat", **kwargs: list[Any]):
+    async def act(self, ip: str = "Unknown", message: str = "", recipient: str = "Global Chat", **kwargs: list[Any]) -> dict[str, Any] | None:
         if self.ws.session is None:
             return None
 

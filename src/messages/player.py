@@ -3,7 +3,7 @@ from messages.base import BaseHandler
 
 
 class PlayerJoin(BaseHandler):
-    async def act(self, ip: str = "Unknown", uuid: str | None = None, **kwargs: list[Any]):
+    async def act(self, ip: str = "Unknown", uuid: str | None = None, **kwargs: list[Any]) -> dict[str, Any] | None:
         if self.ws.session is None:
             return None
 
@@ -14,7 +14,7 @@ class PlayerJoin(BaseHandler):
 
 
 class PlayerQuit(BaseHandler):
-    async def act(self, ip: str = "Unknown", uuid: str | None = None, **kwargs: list[Any]):
+    async def act(self, ip: str = "Unknown", uuid: str | None = None, **kwargs: list[Any]) -> dict[str, Any] | None:
         if self.ws.session is None:
             return None
 
@@ -24,7 +24,7 @@ class PlayerQuit(BaseHandler):
 
 
 class PlayerRespawn(BaseHandler):
-    async def act(self, ip: str = "Unknown", uuid: str | None = None, **kwargs: list[Any]):
+    async def act(self, ip: str = "Unknown", uuid: str | None = None, **kwargs: list[Any]) -> dict[str, Any] | None:
         if self.ws.session is None:
             return None
 
