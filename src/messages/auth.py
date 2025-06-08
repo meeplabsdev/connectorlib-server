@@ -13,7 +13,12 @@ inProgress: list[dict[str, str | datetime]] = []
 
 
 class IdentityRequest(BaseHandler):
-    async def act(self, uuid: str | None = None, username: str | None = None, **kwargs: list[Any]) -> dict[str, Any] | None:
+    async def act(
+        self,
+        uuid: str | None = None,
+        username: str | None = None,
+        **kwargs: list[Any],
+    ) -> dict[str, Any] | None:
         if uuid is None or username is None:
             return None
 
@@ -39,16 +44,29 @@ class IdentityRequest(BaseHandler):
 
 
 class IdentityChallenge(BaseHandler):
-    async def act(self, uuid: str | None = None, result: str | None = None, **kwargs: list[Any]) -> dict[str, Any] | None:
+    async def act(
+        self,
+        uuid: str | None = None,
+        result: str | None = None,
+        **kwargs: list[Any],
+    ) -> dict[str, Any] | None:
         if uuid is None or result is None:
             return None
 
         match: dict[str, str | datetime] | None = next((p for p in inProgress if p["uuid"] == uuid and p["expect"] == result), None)
         if match:
             session = m_uuid.uuid4().hex
-            player = self.ws.de.Player(self.ws.db, m_uuid.UUID(hex=uuid.replace("-", "")), str(match["username"]))
+            player = self.ws.de.Player(
+                self.ws.db,
+                m_uuid.UUID(hex=uuid.replace("-", "")),
+                str(match["username"]),
+            )
 
-            self.ws.session = self.ws.de.Session(self.ws.db, session, player)
+            self.ws.session = self.ws.de.Session(
+                self.ws.db,
+                session,
+                player,
+            )
             inProgress.remove(match)
 
             return {
