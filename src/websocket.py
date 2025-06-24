@@ -38,7 +38,7 @@ class Websocket:
                 print(f"{Fore.LIGHTBLUE_EX}|← {id}{Fore.LIGHTBLACK_EX} {extra}{Fore.RESET}")
                 for k in data.keys():
                     if k != "authRequired":
-                        item: dict[str, Any] | list[dict[str, Any]] = data.get(k) or {}
+                        item: dict[str, Any] | list[dict[str, Any]] = data.get(k, {})
                         if type(item) is list and len(item) > 1:
                             r = f"[{item[0]}, ...]"
                         else:
@@ -58,7 +58,7 @@ class Websocket:
                     print(f"{Fore.LIGHTRED_EX}|→ {id}{Fore.RESET}")
                     for k in resp.keys():
                         if k != "authRequired":
-                            item: dict[str, Any] | list[dict[str, Any]] = resp.get(k) or {}
+                            item: dict[str, Any] | list[dict[str, Any]] = resp.get(k, {})
                             if type(item) is list and len(item) > 1:
                                 r = f"[{item[0]}, ...]"
                             else:

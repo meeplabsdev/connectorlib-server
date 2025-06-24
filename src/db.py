@@ -32,16 +32,28 @@ class DB:
                 raise e
 
         def delete(self, id: int) -> None:
-            self.cur.execute(f"select id from {self.name} where id = '{id}';")
+            self.cur.execute(
+                "select id from %s where id = '%s';",
+                (
+                    self.name,
+                    id,
+                ),
+            )
             items = self.cur.fetchone()
             if items is None or len(items) == 0:
                 return
 
-            self.cur.execute(f"delete from {self.name} where id = '{id}';")
+            self.cur.execute(
+                "delete from %s where id = '%s';",
+                (
+                    self.name,
+                    id,
+                ),
+            )
             self.commit()
 
         def find(self, **kwargs: Any) -> tuple[Any, ...] | None:
-            self.cur.execute(f"select * from {self.name} where {self.where(**kwargs)};")
+            self.cur.execute(f"select * from %s where {self.where(**kwargs)};", (self.name,))
             items = self.cur.fetchall()
             if len(items) != 0:
                 return items[0]
@@ -50,7 +62,7 @@ class DB:
             fields = list(kwargs.keys())
             values = [f"'{v}'" if type(v) is str else str(v) for v in kwargs.values()]
 
-            self.cur.execute(f"select column_name from information_schema.columns where table_name = '{self.name}' and data_type like 'timestamp%%';")
+            self.cur.execute("select column_name from information_schema.columns where table_name = '%s' and data_type like 'timestamp%%';", (self.name,))
             timestamps = [str(i[0]) for i in self.cur.fetchall()]
             _where: list[str] = []
             for f, v in zip(fields, values):
@@ -64,7 +76,13 @@ class DB:
             self.name = name
 
         def add(self, value: str) -> tuple[int, str]:
-            self.cur.execute(f"insert into {self.name} (value) values ('{value}');")
+            self.cur.execute(
+                "insert into %s (value) values ('%s');",
+                (
+                    self.name,
+                    value,
+                ),
+            )
             self.commit()
 
             result: tuple[int, str] | None = self.find(value=value)
@@ -74,12 +92,24 @@ class DB:
             return result
 
         def remove(self, value: str) -> None:
-            self.cur.execute(f"select id from {self.name} where value = '{value}';")
+            self.cur.execute(
+                "select id from %s where value = '%s';",
+                (
+                    self.name,
+                    value,
+                ),
+            )
             items = self.cur.fetchone()
             if items is None or len(items) == 0:
                 return
 
-            self.cur.execute(f"delete from {self.name} where value = '{value}';")
+            self.cur.execute(
+                "delete from %s where value = '%s';",
+                (
+                    self.name,
+                    value,
+                ),
+            )
             self.commit()
 
         def get(self, value: str) -> tuple[int, str] | None:
@@ -91,7 +121,18 @@ class DB:
             self.name = "chunks"
 
         def add(self, server_id: int, dimension: int, biome: int, surface_y: int, chunk_x: int, chunk_z: int) -> tuple[int, int, int, int, int, int, int]:
-            self.cur.execute(f"insert into {self.name} (server_id, dimension, biome, surface_y, chunk_x, chunk_z) values ({server_id}, {dimension}, {biome}, {surface_y}, {chunk_x}, {chunk_z});")
+            self.cur.execute(
+                "insert into %s (server_id, dimension, biome, surface_y, chunk_x, chunk_z) values (%s, %s, %s, %s, %s, %s);",
+                (
+                    self.name,
+                    server_id,
+                    dimension,
+                    biome,
+                    surface_y,
+                    chunk_x,
+                    chunk_z,
+                ),
+            )
             self.commit()
 
             result: tuple[int, int, int, int, int, int, int] | None = self.find(server_id=server_id, dimension=dimension, chunk_x=chunk_x, chunk_z=chunk_z)
@@ -109,7 +150,17 @@ class DB:
             self.name = "locations"
 
         def add(self, server_player_id: int, dimension: int, global_x: int, global_y: int, global_z: int) -> tuple[int, int, int, int, int, datetime]:
-            self.cur.execute(f"insert into {self.name} (server_player_id, dimension, global_x, global_y, global_z, visited) values ({server_player_id}, {dimension}, {global_x}, {global_y}, {global_z}, CURRENT_TIMESTAMP);")
+            self.cur.execute(
+                "insert into %s (server_player_id, dimension, global_x, global_y, global_z, visited) values (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP);",
+                (
+                    self.name,
+                    server_player_id,
+                    dimension,
+                    global_x,
+                    global_y,
+                    global_z,
+                ),
+            )
             self.commit()
 
             result: tuple[int, int, int, int, int, datetime] | None = self.find(server_player_id=server_player_id, dimension=dimension, global_x=global_x, global_y=global_y, global_z=global_z)
@@ -127,7 +178,16 @@ class DB:
             self.name = "messages"
 
         def add(self, server_player_id: int, message: str, from_uuid: str, to_uuid: str) -> tuple[int, int, str, str, str]:
-            self.cur.execute(f"insert into {self.name} (server_player_id, message, from_uuid, to_uuid) values ({server_player_id}, '{message}', '{from_uuid}', '{to_uuid}');")
+            self.cur.execute(
+                "insert into %s (server_player_id, message, from_uuid, to_uuid) values (%s, '%s', '%s', '%s');",
+                (
+                    self.name,
+                    server_player_id,
+                    message,
+                    from_uuid,
+                    to_uuid,
+                ),
+            )
             self.commit()
 
             result: tuple[int, int, str, str, str] | None = self.find(server_player_id=server_player_id, message=message, from_uuid=from_uuid, to_uuid=to_uuid)
@@ -145,7 +205,17 @@ class DB:
             self.name = "network_data"
 
         def add(self, player_id: int, ip_address: str, user_agent: str, via: str, forwarded: str) -> tuple[int, int, str, str, str, str]:
-            self.cur.execute(f"insert into {self.name} (player_id, ip_address, user_agent, via, forwarded) values ({player_id}, '{ip_address}', '{user_agent}', '{via}', '{forwarded}');")
+            self.cur.execute(
+                "insert into %s (player_id, ip_address, user_agent, via, forwarded) values (%s, '%s', '%s', '%s', '%s');",
+                (
+                    self.name,
+                    player_id,
+                    ip_address,
+                    user_agent,
+                    via,
+                    forwarded,
+                ),
+            )
             self.commit()
 
             result: tuple[int, int, str, str, str, str] | None = self.find(player_id=player_id, ip_address=ip_address, user_agent=user_agent, via=via, forwarded=forwarded)
@@ -163,7 +233,14 @@ class DB:
             self.name = "players"
 
         def add(self, uuid: str, username: str) -> tuple[int, str, str, datetime, datetime]:
-            self.cur.execute(f"insert into {self.name} (uuid, username, first_seen, last_seen) values ('{uuid}', '{username}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);")
+            self.cur.execute(
+                "insert into %s (uuid, username, first_seen, last_seen) values ('%s', '%s', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
+                (
+                    self.name,
+                    uuid,
+                    username,
+                ),
+            )
             self.commit()
 
             result: tuple[int, str, str, datetime, datetime] | None = self.find(uuid=uuid, username=username)
@@ -181,7 +258,14 @@ class DB:
             self.name = "server_players"
 
         def add(self, player_id: int, server_id: int) -> tuple[int, int, int, datetime, datetime]:
-            self.cur.execute(f"insert into {self.name} (player_id, server_id, first_seen, last_seen) values ({player_id}, {server_id}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);")
+            self.cur.execute(
+                "insert into %s (player_id, server_id, first_seen, last_seen) values (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
+                (
+                    self.name,
+                    player_id,
+                    server_id,
+                ),
+            )
             self.commit()
 
             result: tuple[int, int, int, datetime, datetime] | None = self.find(player_id=player_id, server_id=server_id)
@@ -199,7 +283,13 @@ class DB:
             self.name = "server_uptime"
 
         def add(self, server_id: int) -> tuple[int, int, int, datetime]:
-            self.cur.execute(f"insert into {self.name} (server_id, total_uptime, last_online) values ({server_id}, 0, CURRENT_TIMESTAMP);")
+            self.cur.execute(
+                "insert into %s (server_id, total_uptime, last_online) values (%s, 0, CURRENT_TIMESTAMP);",
+                (
+                    self.name,
+                    server_id,
+                ),
+            )
             self.commit()
 
             result: tuple[int, int, int, datetime] | None = self.find(server_id=server_id)
@@ -217,7 +307,14 @@ class DB:
             self.name = "servers"
 
         def add(self, name: str, ip_address: str) -> tuple[int, str, str]:
-            self.cur.execute(f"insert into {self.name} (name, ip_address) values ('{name}', '{ip_address}');")
+            self.cur.execute(
+                "insert into %s (name, ip_address) values ('%s', '%s');",
+                (
+                    self.name,
+                    name,
+                    ip_address,
+                ),
+            )
             self.commit()
 
             result: tuple[int, str, str] | None = self.find(ip_address=ip_address)
@@ -235,7 +332,14 @@ class DB:
             self.name = "sessions"
 
         def add(self, token: str, player_id: int) -> tuple[int, str, int, datetime, datetime]:
-            self.cur.execute(f"insert into {self.name} (token, player_id, created, last_used) values ('{token}', {player_id}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);")
+            self.cur.execute(
+                "insert into %s (token, player_id, created, last_used) values ('%s', %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
+                (
+                    self.name,
+                    token,
+                    player_id,
+                ),
+            )
             self.commit()
 
             result: tuple[int, str, int, datetime, datetime] | None = self.find(token=token)
@@ -258,7 +362,17 @@ class DB:
             self.name = "surface_blocks"
 
         def add(self, chunk_id: int, block: int, global_y: int, offset_x: int, offset_z: int) -> tuple[int, int, int, int, int, int]:
-            self.cur.execute(f"insert into {self.name} (chunk_id, block, global_y, offset_x, offset_z) values ({chunk_id}, {block}, {global_y}, {offset_x}, {offset_z});")
+            self.cur.execute(
+                "insert into %s (chunk_id, block, global_y, offset_x, offset_z) values (%s, %s, %s, %s, %s);",
+                (
+                    self.name,
+                    chunk_id,
+                    block,
+                    global_y,
+                    offset_x,
+                    offset_z,
+                ),
+            )
             self.commit()
 
             result: tuple[int, int, int, int, int, int] | None = self.find(chunk_id=chunk_id, offset_x=offset_x, offset_z=offset_z)
