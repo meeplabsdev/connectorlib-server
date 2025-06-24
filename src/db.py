@@ -33,7 +33,7 @@ class DB:
 
         def delete(self, id: int) -> None:
             self.cur.execute(
-                "select id from %s where id = '%s';",
+                "select id from %s where id = %s;",
                 (
                     self.name,
                     id,
@@ -44,7 +44,7 @@ class DB:
                 return
 
             self.cur.execute(
-                "delete from %s where id = '%s';",
+                "delete from %s where id = %s;",
                 (
                     self.name,
                     id,
@@ -62,7 +62,7 @@ class DB:
             fields = list(kwargs.keys())
             values = [f"'{v}'" if type(v) is str else str(v) for v in kwargs.values()]
 
-            self.cur.execute("select column_name from information_schema.columns where table_name = '%s' and data_type like 'timestamp%%';", (self.name,))
+            self.cur.execute("select column_name from information_schema.columns where table_name = %s and data_type like 'timestamp%%';", (self.name,))
             timestamps = [str(i[0]) for i in self.cur.fetchall()]
             _where: list[str] = []
             for f, v in zip(fields, values):
@@ -77,7 +77,7 @@ class DB:
 
         def add(self, value: str) -> tuple[int, str]:
             self.cur.execute(
-                "insert into %s (value) values ('%s');",
+                "insert into %s (value) values (%s);",
                 (
                     self.name,
                     value,
@@ -93,7 +93,7 @@ class DB:
 
         def remove(self, value: str) -> None:
             self.cur.execute(
-                "select id from %s where value = '%s';",
+                "select id from %s where value = %s;",
                 (
                     self.name,
                     value,
@@ -104,7 +104,7 @@ class DB:
                 return
 
             self.cur.execute(
-                "delete from %s where value = '%s';",
+                "delete from %s where value = %s;",
                 (
                     self.name,
                     value,
@@ -179,7 +179,7 @@ class DB:
 
         def add(self, server_player_id: int, message: str, from_uuid: str, to_uuid: str) -> tuple[int, int, str, str, str]:
             self.cur.execute(
-                "insert into %s (server_player_id, message, from_uuid, to_uuid) values (%s, '%s', '%s', '%s');",
+                "insert into %s (server_player_id, message, from_uuid, to_uuid) values (%s, %s, %s, %s);",
                 (
                     self.name,
                     server_player_id,
@@ -206,7 +206,7 @@ class DB:
 
         def add(self, player_id: int, ip_address: str, user_agent: str, via: str, forwarded: str) -> tuple[int, int, str, str, str, str]:
             self.cur.execute(
-                "insert into %s (player_id, ip_address, user_agent, via, forwarded) values (%s, '%s', '%s', '%s', '%s');",
+                "insert into %s (player_id, ip_address, user_agent, via, forwarded) values (%s, %s, %s, %s, %s);",
                 (
                     self.name,
                     player_id,
@@ -234,7 +234,7 @@ class DB:
 
         def add(self, uuid: str, username: str) -> tuple[int, str, str, datetime, datetime]:
             self.cur.execute(
-                "insert into %s (uuid, username, first_seen, last_seen) values ('%s', '%s', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
+                "insert into %s (uuid, username, first_seen, last_seen) values (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
                 (
                     self.name,
                     uuid,
@@ -308,7 +308,7 @@ class DB:
 
         def add(self, name: str, ip_address: str) -> tuple[int, str, str]:
             self.cur.execute(
-                "insert into %s (name, ip_address) values ('%s', '%s');",
+                "insert into %s (name, ip_address) values (%s, %s);",
                 (
                     self.name,
                     name,
@@ -333,7 +333,7 @@ class DB:
 
         def add(self, token: str, player_id: int) -> tuple[int, str, int, datetime, datetime]:
             self.cur.execute(
-                "insert into %s (token, player_id, created, last_used) values ('%s', %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
+                "insert into %s (token, player_id, created, last_used) values (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
                 (
                     self.name,
                     token,
