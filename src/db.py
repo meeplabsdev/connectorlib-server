@@ -61,7 +61,7 @@ class DB:
             _where: list[str] = []
             for f, v in zip(fields, values):
                 if f not in timestamps:
-                    _where.append(f"{f} = {sql.Literal(v).as_string(self.cur)}")
+                    _where.append(f"{f} = {v.replace("'", '"')}")
             return " and ".join(_where)
 
     class LookupTable(Table):
