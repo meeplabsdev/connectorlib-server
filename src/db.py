@@ -54,14 +54,14 @@ class DB:
 
         def where(self, **kwargs: Any) -> str:
             fields = list(kwargs.keys())
-            values = [f"'{v}'" if type(v) is str else str(v) for v in kwargs.values()]
+            values = [f"'{v.replace("'", '"')}'" if type(v) is str else str(v.replace("'", '"')) for v in kwargs.values()]
 
             self.cur.execute("select column_name from information_schema.columns where table_name = %s and data_type like 'timestamp%%';", (self.name,))
             timestamps = [str(i[0]) for i in self.cur.fetchall()]
             _where: list[str] = []
             for f, v in zip(fields, values):
                 if f not in timestamps:
-                    _where.append(f"{f} = {v.replace("'", '"')}")
+                    _where.append(f"{f} = {v}")
             return " and ".join(_where)
 
     class LookupTable(Table):
