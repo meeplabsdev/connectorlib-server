@@ -33,27 +33,21 @@ class DB:
 
         def delete(self, id: int) -> None:
             self.cur.execute(
-                "select id from %s where id = %s;",
-                (
-                    self.name,
-                    id,
-                ),
+                f"select id from {self.name} where id = %s;",
+                (id,),
             )
             items = self.cur.fetchone()
             if items is None or len(items) == 0:
                 return
 
             self.cur.execute(
-                "delete from %s where id = %s;",
-                (
-                    self.name,
-                    id,
-                ),
+                f"delete from {self.name} where id = %s;",
+                (id,),
             )
             self.commit()
 
         def find(self, **kwargs: Any) -> tuple[Any, ...] | None:
-            self.cur.execute(f"select * from %s where {self.where(**kwargs)};", (self.name,))
+            self.cur.execute(f"select * from {self.name} where {self.where(**kwargs)};")
             items = self.cur.fetchall()
             if len(items) != 0:
                 return items[0]
@@ -77,11 +71,8 @@ class DB:
 
         def add(self, value: str) -> tuple[int, str]:
             self.cur.execute(
-                "insert into %s (value) values (%s);",
-                (
-                    self.name,
-                    value,
-                ),
+                f"insert into {self.name} (value) values (%s);",
+                (value,),
             )
             self.commit()
 
@@ -93,22 +84,16 @@ class DB:
 
         def remove(self, value: str) -> None:
             self.cur.execute(
-                "select id from %s where value = %s;",
-                (
-                    self.name,
-                    value,
-                ),
+                f"select id from {self.name} where value = %s;",
+                (value,),
             )
             items = self.cur.fetchone()
             if items is None or len(items) == 0:
                 return
 
             self.cur.execute(
-                "delete from %s where value = %s;",
-                (
-                    self.name,
-                    value,
-                ),
+                f"delete from {self.name} where value = %s;",
+                (value,),
             )
             self.commit()
 
@@ -122,9 +107,8 @@ class DB:
 
         def add(self, server_id: int, dimension: int, biome: int, surface_y: int, chunk_x: int, chunk_z: int) -> tuple[int, int, int, int, int, int, int]:
             self.cur.execute(
-                "insert into %s (server_id, dimension, biome, surface_y, chunk_x, chunk_z) values (%s, %s, %s, %s, %s, %s);",
+                f"insert into {self.name} (server_id, dimension, biome, surface_y, chunk_x, chunk_z) values (%s, %s, %s, %s, %s, %s);",
                 (
-                    self.name,
                     server_id,
                     dimension,
                     biome,
@@ -151,9 +135,8 @@ class DB:
 
         def add(self, server_player_id: int, dimension: int, global_x: int, global_y: int, global_z: int) -> tuple[int, int, int, int, int, datetime]:
             self.cur.execute(
-                "insert into %s (server_player_id, dimension, global_x, global_y, global_z, visited) values (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP);",
+                f"insert into {self.name} (server_player_id, dimension, global_x, global_y, global_z, visited) values (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP);",
                 (
-                    self.name,
                     server_player_id,
                     dimension,
                     global_x,
@@ -179,9 +162,8 @@ class DB:
 
         def add(self, server_player_id: int, message: str, from_uuid: str, to_uuid: str) -> tuple[int, int, str, str, str]:
             self.cur.execute(
-                "insert into %s (server_player_id, message, from_uuid, to_uuid) values (%s, %s, %s, %s);",
+                f"insert into {self.name} (server_player_id, message, from_uuid, to_uuid) values (%s, %s, %s, %s);",
                 (
-                    self.name,
                     server_player_id,
                     message,
                     from_uuid,
@@ -206,9 +188,8 @@ class DB:
 
         def add(self, player_id: int, ip_address: str, user_agent: str, via: str, forwarded: str) -> tuple[int, int, str, str, str, str]:
             self.cur.execute(
-                "insert into %s (player_id, ip_address, user_agent, via, forwarded) values (%s, %s, %s, %s, %s);",
+                f"insert into {self.name} (player_id, ip_address, user_agent, via, forwarded) values (%s, %s, %s, %s, %s);",
                 (
-                    self.name,
                     player_id,
                     ip_address,
                     user_agent,
@@ -234,9 +215,8 @@ class DB:
 
         def add(self, uuid: str, username: str) -> tuple[int, str, str, datetime, datetime]:
             self.cur.execute(
-                "insert into %s (uuid, username, first_seen, last_seen) values (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
+                f"insert into {self.name} (uuid, username, first_seen, last_seen) values (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
                 (
-                    self.name,
                     uuid,
                     username,
                 ),
@@ -259,9 +239,8 @@ class DB:
 
         def add(self, player_id: int, server_id: int) -> tuple[int, int, int, datetime, datetime]:
             self.cur.execute(
-                "insert into %s (player_id, server_id, first_seen, last_seen) values (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
+                f"insert into {self.name} (player_id, server_id, first_seen, last_seen) values (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
                 (
-                    self.name,
                     player_id,
                     server_id,
                 ),
@@ -284,11 +263,8 @@ class DB:
 
         def add(self, server_id: int) -> tuple[int, int, int, datetime]:
             self.cur.execute(
-                "insert into %s (server_id, total_uptime, last_online) values (%s, 0, CURRENT_TIMESTAMP);",
-                (
-                    self.name,
-                    server_id,
-                ),
+                f"insert into {self.name} (server_id, total_uptime, last_online) values (%s, 0, CURRENT_TIMESTAMP);",
+                (server_id,),
             )
             self.commit()
 
@@ -308,9 +284,8 @@ class DB:
 
         def add(self, name: str, ip_address: str) -> tuple[int, str, str]:
             self.cur.execute(
-                "insert into %s (name, ip_address) values (%s, %s);",
+                f"insert into {self.name} (name, ip_address) values (%s, %s);",
                 (
-                    self.name,
                     name,
                     ip_address,
                 ),
@@ -333,9 +308,8 @@ class DB:
 
         def add(self, token: str, player_id: int) -> tuple[int, str, int, datetime, datetime]:
             self.cur.execute(
-                "insert into %s (token, player_id, created, last_used) values (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
+                f"insert into {self.name} (token, player_id, created, last_used) values (%s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);",
                 (
-                    self.name,
                     token,
                     player_id,
                 ),
@@ -363,9 +337,8 @@ class DB:
 
         def add(self, chunk_id: int, block: int, global_y: int, offset_x: int, offset_z: int) -> tuple[int, int, int, int, int, int]:
             self.cur.execute(
-                "insert into %s (chunk_id, block, global_y, offset_x, offset_z) values (%s, %s, %s, %s, %s);",
+                f"insert into {self.name} (chunk_id, block, global_y, offset_x, offset_z) values (%s, %s, %s, %s, %s);",
                 (
-                    self.name,
                     chunk_id,
                     block,
                     global_y,
