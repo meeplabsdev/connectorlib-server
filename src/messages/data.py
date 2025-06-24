@@ -150,6 +150,9 @@ class SystemChatData(BaseHandler):
         if self.ws.session is None:
             return None
 
+        return None
+        # temporary disable
+
         server = self.ws.de.Server(self.ws.db, ip, ip)
         s_player = self.ws.de.ServerPlayer(
             self.ws.db,
