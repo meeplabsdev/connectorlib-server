@@ -37,12 +37,10 @@ class PositionData(BaseHandler):
         self,
         ip: str = "Unknown",
         dimension: str = "",
-        x: int | None = None,
-        y: int | None = None,
-        z: int | None = None,
+        pos: list[int] | None = None,
         **kwargs: list[Any],
     ) -> dict[str, Any] | None:
-        if self.ws.session is None or x is None or y is None or z is None:
+        if self.ws.session is None or pos is None or len(pos) != 3:
             return None
 
         server = self.ws.de.Server(self.ws.db, ip, ip)
@@ -56,9 +54,9 @@ class PositionData(BaseHandler):
             self.ws.db,
             s_player,
             self.ws.de.Dimension(self.ws.db, dimension),
-            x,
-            y,
-            z,
+            pos[0],
+            pos[1],
+            pos[2],
         )
         # TODO: update the last seen of the location
 
@@ -114,14 +112,14 @@ class ChatData(BaseHandler):
         self,
         ip: str = "Unknown",
         message: str = "",
-        sender: str = "",
-        recipient: str = "Global Chat",
+        sender: dict[str, str] = {},
+        recipient: dict[str, str] = {},
         **kwargs: list[Any],
     ) -> dict[str, Any] | None:
         if self.ws.session is None:
             return None
 
-        content = self.extract_content(message, sender)
+        content = self.extract_content(message, list(sender.keys())[0])
         server = self.ws.de.Server(self.ws.db, ip, ip)
         s_player = self.ws.de.ServerPlayer(
             self.ws.db,
@@ -133,10 +131,10 @@ class ChatData(BaseHandler):
             self.ws.db,
             s_player,
             content,
-            uuid.UUID(int=1),
-            uuid.UUID(int=1),
+            uuid.UUID(list(sender.values())[0]),
+            uuid.UUID(list(recipient.values())[0]),
         )
-        # TODO: figure out how to find the UUID for sender and recipient, will need to modify client side message
+        # TODO: switch the uuids for player ids
 
 
 class SystemChatData(BaseHandler):
@@ -144,7 +142,7 @@ class SystemChatData(BaseHandler):
         self,
         ip: str = "Unknown",
         message: str = "",
-        recipient: str = "Global Chat",
+        recipient: dict[str, str] = {},
         **kwargs: list[Any],
     ) -> dict[str, Any] | None:
         if self.ws.session is None:
@@ -161,7 +159,6 @@ class SystemChatData(BaseHandler):
             self.ws.db,
             s_player,
             message,
-            uuid.UUID(int=1),
-            uuid.UUID(int=1),
+            uuid.UUID(int=0),
+            uuid.UUID(list(recipient.values())[0]),
         )
-        # TODO: figure out how to find the UUID for sender and recipient, will need to modify client side message
