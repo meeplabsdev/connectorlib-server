@@ -5,7 +5,7 @@ from datetime import datetime
 
 # import requests
 
-from messages.base import BaseHandler
+from messages.BaseHandler import BaseHandler
 
 KEY = "thisIsATestKey!"
 

@@ -1,64 +1,9 @@
 import re
 
-from datetime import datetime, timezone
 from typing import Any
 import uuid
 
-from messages.base import BaseHandler
-
-
-class NetworkData(BaseHandler):
-    async def act(
-        self,
-        ip: str = "",
-        user_agent: str = "",
-        _encoding: str = "",
-        _mime: str = "",
-        via: str = "",
-        forwarded: str = "",
-        _language: str = "",
-        **kwargs: list[Any],
-    ) -> dict[str, Any] | None:
-        if self.ws.session is None:
-            return None
-
-        self.ws.de.NetworkData(
-            self.ws.db,
-            self.ws.session.player,
-            ip,
-            user_agent,
-            via,
-            forwarded.split(","),
-        )
-
-
-class PositionData(BaseHandler):
-    async def act(
-        self,
-        ip: str = "Unknown",
-        dimension: str = "",
-        pos: list[int] | None = None,
-        **kwargs: list[Any],
-    ) -> dict[str, Any] | None:
-        if self.ws.session is None or pos is None or len(pos) != 3:
-            return None
-
-        server = self.ws.de.Server(self.ws.db, ip, ip)
-        s_player = self.ws.de.ServerPlayer(
-            self.ws.db,
-            self.ws.session.player,
-            server,
-        )
-        # TODO: update the last seen of the server_player and player
-        self.ws.de.Location(
-            self.ws.db,
-            s_player,
-            self.ws.de.Dimension(self.ws.db, dimension),
-            pos[0],
-            pos[1],
-            pos[2],
-        )
-        # TODO: update the last seen of the location
+from messages.BaseHandler import BaseHandler
 
 
 class ChatData(BaseHandler):
@@ -135,30 +80,3 @@ class ChatData(BaseHandler):
             uuid.UUID(list(recipient.values())[0]),
         )
         # TODO: switch the uuids for player ids
-
-
-class SystemChatData(BaseHandler):
-    async def act(
-        self,
-        ip: str = "Unknown",
-        message: str = "",
-        recipient: dict[str, str] = {},
-        **kwargs: list[Any],
-    ) -> dict[str, Any] | None:
-        if self.ws.session is None:
-            return None
-
-        server = self.ws.de.Server(self.ws.db, ip, ip)
-        s_player = self.ws.de.ServerPlayer(
-            self.ws.db,
-            self.ws.session.player,
-            server,
-        )
-
-        self.ws.de.Message(
-            self.ws.db,
-            s_player,
-            message,
-            uuid.UUID(int=0),
-            uuid.UUID(list(recipient.values())[0]),
-        )

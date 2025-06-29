@@ -1,5 +1,5 @@
 from typing import Any
-from messages.base import BaseHandler
+from messages.BaseHandler import BaseHandler
 
 
 class ChunkRequest(BaseHandler):

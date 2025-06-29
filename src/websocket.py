@@ -5,7 +5,7 @@ import websockets
 from colorama import Fore
 from websockets import server as wserver
 import websockets.exceptions
-from messages.base import BaseHandler
+from messages.BaseHandler import BaseHandler
 from handlers import HANDLERS
 
 from db import DB, Definitions
