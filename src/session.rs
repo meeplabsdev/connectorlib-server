@@ -1,6 +1,16 @@
 use uuid::Uuid;
 
+#[allow(dead_code)]
 pub struct Session {
-    pub uuid: Option<Uuid>,
-    pub username: Option<String>,
+    uuid: Option<Uuid>,
+    username: Option<String>,
+}
+
+impl Session {
+    pub fn new() -> Self {
+        Self {
+            uuid: None,
+            username: None,
+        }
+    }
 }

@@ -9,7 +9,7 @@ pub enum SocketMessage {
     IdentityRequest(IdentityRequest::Message),
 }
 
-pub fn handle(message: SocketMessage, sess: &Session) {
+pub fn handle(message: SocketMessage, sess: &Session) -> Option<SocketMessage> {
     match message {
         SocketMessage::IdentityRequest(msg) => IdentityRequest::handle(msg, sess),
     }

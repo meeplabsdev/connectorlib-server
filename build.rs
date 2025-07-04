@@ -52,7 +52,7 @@ fn main() {
     handlers_contents.push_str(
         "}
 
-pub fn handle(message: SocketMessage, sess: &Session) {
+pub fn handle(message: SocketMessage, sess: &Session) -> Option<SocketMessage> {
     match message {\n"
     );
 
