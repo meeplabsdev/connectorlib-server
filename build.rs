@@ -17,7 +17,7 @@ fn main() {
         "use serde::{ Deserialize, Serialize };\n\n\
                 use crate::messages::*;\n\
                 use crate::session::Session;\n\n\
-                #[derive(Serialize, Deserialize, Debug)]\n\
+                #[derive(Deserialize, Debug)]\n\
                 #[serde(tag = \"id\", content = \"value\")]\n\
                 pub enum SocketMessage {\n"
     );
@@ -50,9 +50,19 @@ fn main() {
     }
 
     handlers_contents.push_str(
-        "}
+        "}\n\n\
+                #[derive(Serialize, Debug)]\n\
+                #[serde(tag = \"id\", content = \"value\")]\n\
+                pub enum SocketResponse {\n"
+    );
 
-pub fn handle(message: SocketMessage, sess: &Session) -> Option<SocketMessage> {
+    for module_name in module_names.clone() {
+        handlers_contents.push_str(&format!("    {m}({m}::Response),\n", m = module_name));
+    }
+
+    handlers_contents.push_str(
+        "}\n\n\
+        pub fn handle(message: SocketMessage, sess: &Session) -> Option<SocketResponse> {
     match message {\n"
     );
 

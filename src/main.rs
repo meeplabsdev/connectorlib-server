@@ -25,13 +25,13 @@ async fn handle(stream: TcpStream, addr: SocketAddr) {
     let ws_stream = match accept_async(stream).await {
         Ok(ws) => ws,
         Err(e) => {
-            println!("(Failed) {}: {}", addr, e);
+            println!("({}) |- Failed {}", addr, e);
             return;
         }
     };
 
     let (mut write, mut read) = ws_stream.split();
-    println!("(Connected) {}", addr);
+    println!("({}) |- Connection Established", addr);
     let sess: session::Session = session::Session::new();
 
     while let Some(msg) = read.next().await {
@@ -39,12 +39,14 @@ async fn handle(stream: TcpStream, addr: SocketAddr) {
             Ok(Message::Binary(data)) => {
                 match rmp_serde::from_slice::<handlers::SocketMessage>(&data) {
                     Ok(msg) => {
+                        println!("({}) |← {:?}", addr, msg);
+
                         let response = handlers::handle(msg, &sess);
-                        if let Some(response) = response {
-                            let mut buf = Vec::new();
-                            response.serialize(&mut Serializer::new(&mut buf)).unwrap();
-                            let bytes = Bytes::from(buf);
-                            write.send(Message::Binary(bytes)).await.unwrap();
+                        if let Some(res) = response {
+                            let buf = rmp_serde::to_vec::<handlers::SocketResponse>(&res).unwrap();
+                            write.send(Message::Binary(Bytes::from(buf))).await.unwrap();
+
+                            println!("({}) |→ {:?}", addr, res);
                         }
                     }
                     Err(e) => {
@@ -53,7 +55,7 @@ async fn handle(stream: TcpStream, addr: SocketAddr) {
                 }
             }
             Ok(Message::Close(_)) => {
-                println!("(Closed) {}", addr);
+                println!("({}) |- Connection Closed", addr);
                 break;
             }
             _ => {}
