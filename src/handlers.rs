@@ -6,17 +6,20 @@ use crate::session::Session;
 #[derive(Deserialize, Debug)]
 #[serde(tag = "id", content = "value")]
 pub enum SocketMessage {
+    IdentityChallenge(IdentityChallenge::Message),
     IdentityRequest(IdentityRequest::Message),
 }
 
 #[derive(Serialize, Debug)]
 #[serde(tag = "id", content = "value")]
 pub enum SocketResponse {
+    IdentityChallenge(IdentityChallenge::Response),
     IdentityRequest(IdentityRequest::Response),
 }
 
-pub fn handle(message: SocketMessage, sess: &Session) -> Option<SocketResponse> {
+pub fn handle(message: SocketMessage, sess: &mut Session) -> Option<SocketResponse> {
     match message {
+        SocketMessage::IdentityChallenge(msg) => IdentityChallenge::handle(msg, sess),
         SocketMessage::IdentityRequest(msg) => IdentityRequest::handle(msg, sess),
     }
 }

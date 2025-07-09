@@ -62,7 +62,7 @@ fn main() {
 
     handlers_contents.push_str(
         "}\n\n\
-        pub fn handle(message: SocketMessage, sess: &Session) -> Option<SocketResponse> {
+        pub fn handle(message: SocketMessage, sess: &mut Session) -> Option<SocketResponse> {
     match message {\n"
     );
 

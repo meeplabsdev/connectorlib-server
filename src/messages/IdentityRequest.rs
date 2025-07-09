@@ -16,10 +16,12 @@ pub struct Response {
     iv: String,
 }
 
-pub fn handle(msg: Message, sess: &Session) -> Option<SocketResponse> {
+pub fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> {
     if msg.uuid.len() != 32 {
         return None;
     }
+
+    sess.set_identity(Uuid::parse_str(&msg.uuid).unwrap(), msg.username.clone());
 
     let _det = Uuid::new_v4().to_string().replace("-", "");
     let _det = _det.chars();
@@ -34,7 +36,7 @@ pub fn handle(msg: Message, sess: &Session) -> Option<SocketResponse> {
     let cipher = Cipher::new_128(key);
 
     let expected = cipher.cbc_encrypt(iv.as_bytes(), plaintext);
-    println!("Expecting {}", base16ct::lower::encode_string(&expected));
+    sess.set_authenticity(base16ct::lower::encode_string(&expected));
 
     return Some(
         SocketResponse::IdentityRequest(Response {
