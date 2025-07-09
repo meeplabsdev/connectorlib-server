@@ -2,6 +2,7 @@ use std::net::SocketAddr;
 use tokio::net::{ TcpListener, TcpStream };
 use tokio_tungstenite::{ accept_async, tungstenite::{ Bytes, Message } };
 use futures_util::{ SinkExt, StreamExt };
+use colored::Colorize;
 
 mod messages;
 mod handlers;
@@ -23,37 +24,45 @@ async fn handle(stream: TcpStream, addr: SocketAddr) {
     let ws_stream = match accept_async(stream).await {
         Ok(ws) => ws,
         Err(e) => {
-            println!("({}) |- Failed {}", addr, e);
+            println!("({}) {}", addr.to_string().bold(), format!("|- Failed {}", e).magenta());
             return;
         }
     };
 
     let (mut write, mut read) = ws_stream.split();
-    println!("({}) |- Connection Established", addr);
-    let sess: session::Session = session::Session::new();
+    println!("({}) |- Connection Established", addr.to_string().bold());
+    let mut sess: session::Session = session::Session::new();
 
     while let Some(msg) = read.next().await {
         match msg {
             Ok(Message::Binary(data)) => {
                 match rmp_serde::from_slice::<handlers::SocketMessage>(&data) {
                     Ok(msg) => {
-                        println!("({}) |← {:?}", addr, msg);
+                        println!("({}) {}", addr.to_string().bold(), format!("|← {:?}", msg).red());
 
-                        let response = handlers::handle(msg, &sess);
+                        let response = handlers::handle(msg, &mut sess);
                         if let Some(res) = response {
                             let buf = rmp_serde::to_vec::<handlers::SocketResponse>(&res).unwrap();
                             write.send(Message::Binary(Bytes::from(buf))).await.unwrap();
 
-                            println!("({}) |→ {:?}", addr, res);
+                            println!(
+                                "({}) {}",
+                                addr.to_string().bold(),
+                                format!("|→ {:?}", res).blue()
+                            );
                         }
                     }
                     Err(e) => {
-                        println!("({}) Error: {}", addr, e);
+                        println!(
+                            "({}) {}",
+                            addr.to_string().bold(),
+                            format!("Error: {}", e).magenta()
+                        );
                     }
                 }
             }
             Ok(Message::Close(_)) => {
-                println!("({}) |- Connection Closed", addr);
+                println!("({}) |- Connection Closed", addr.to_string().bold());
                 break;
             }
             _ => {}
