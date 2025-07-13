@@ -19,14 +19,14 @@ pub struct Session {
 #[allow(dead_code)]
 impl Session {
     pub async fn new() -> Self {
-        let host = "localhost";
+        let mut host = "localhost";
         if utils::is_docker() {
             host = "postgres";
         }
 
         let (client, connection) = tokio_postgres
             ::connect(
-                "user=connectorlib password=connectorlib dbname=connectorlib host=" + host,
+                &format!("user=connectorlib password=connectorlib dbname=connectorlib host={}", host),
                 NoTls
             ).await
             .unwrap();
