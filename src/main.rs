@@ -2,67 +2,63 @@ use std::net::SocketAddr;
 use tokio::net::{ TcpListener, TcpStream };
 use tokio_tungstenite::{ accept_async, tungstenite::{ Bytes, Message } };
 use futures_util::{ SinkExt, StreamExt };
-use colored::Colorize;
+use paris::*;
 
 mod messages;
 mod handlers;
 mod session;
+mod utils;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let listener = TcpListener::bind("127.0.0.1:3000").await?;
-    println!("Server started on :3000");
+    success!("Server started on :3000");
 
     loop {
         let (stream, addr) = listener.accept().await?;
-
-        tokio::spawn(async move { handle(stream, addr).await });
+        tokio::spawn(async move { client(stream, addr).await });
     }
 }
 
-async fn handle(stream: TcpStream, addr: SocketAddr) {
+async fn client(stream: TcpStream, addr: SocketAddr) {
     let ws_stream = match accept_async(stream).await {
         Ok(ws) => ws,
         Err(e) => {
-            println!("({}) {}", addr.to_string().bold(), format!("|- Failed {}", e).magenta());
+            error!("<d>({})</d> Failed {}", addr, e);
             return;
         }
     };
 
     let (mut write, mut read) = ws_stream.split();
-    println!("({}) |- Connection Established", addr.to_string().bold());
-    let mut sess: session::Session = session::Session::new();
+    let mut sess: session::Session = session::Session::new().await;
 
     while let Some(msg) = read.next().await {
         match msg {
             Ok(Message::Binary(data)) => {
-                match rmp_serde::from_slice::<handlers::SocketMessage>(&data) {
-                    Ok(msg) => {
-                        println!("({}) {}", addr.to_string().bold(), format!("|← {:?}", msg).red());
+                if !sess.is_authenticated() {
+                    match rmp_serde::from_slice::<handlers::SocketMessage>(&data) {
+                        Ok(msg) => {
+                            info!("<d>({} → me)</d> {:?}", addr, msg);
 
-                        let response = handlers::handle(msg, &mut sess);
-                        if let Some(res) = response {
-                            let buf = rmp_serde::to_vec::<handlers::SocketResponse>(&res).unwrap();
-                            write.send(Message::Binary(Bytes::from(buf))).await.unwrap();
+                            let response = handlers::handle(msg, &mut sess);
+                            if let Some(res) = response {
+                                let buf = rmp_serde
+                                    ::to_vec::<handlers::SocketResponse>(&res)
+                                    .unwrap();
+                                write.send(Message::Binary(Bytes::from(buf))).await.unwrap();
 
-                            println!(
-                                "({}) {}",
-                                addr.to_string().bold(),
-                                format!("|→ {:?}", res).blue()
-                            );
+                                info!("<d>(me → {})</d> {:?}", addr, res);
+                            }
+                        }
+                        Err(e) => {
+                            error!("<on red>Error: {}</>", e);
                         }
                     }
-                    Err(e) => {
-                        println!(
-                            "({}) {}",
-                            addr.to_string().bold(),
-                            format!("Error: {}", e).magenta()
-                        );
-                    }
+                } else {
+                    warn!("authgenticated session message");
                 }
             }
             Ok(Message::Close(_)) => {
-                println!("({}) |- Connection Closed", addr.to_string().bold());
                 break;
             }
             _ => {}
