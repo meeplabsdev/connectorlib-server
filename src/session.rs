@@ -1,7 +1,13 @@
 use uuid::Uuid;
+use tokio_postgres::{ tls::NoTlsStream, NoTls, Socket };
+
+use crate::utils;
 
 #[allow(dead_code)]
 pub struct Session {
+    pub client: tokio_postgres::Client,
+    connection: tokio_postgres::Connection<Socket, NoTlsStream>,
+
     uuid: Option<Uuid>,
     username: Option<String>,
 
@@ -10,9 +16,25 @@ pub struct Session {
     authenticated: bool,
 }
 
+#[allow(dead_code)]
 impl Session {
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
+        let host = "localhost";
+        if utils::is_docker() {
+            host = "postgres";
+        }
+
+        let (client, connection) = tokio_postgres
+            ::connect(
+                "user=connectorlib password=connectorlib dbname=connectorlib host=" + host,
+                NoTls
+            ).await
+            .unwrap();
+
         Self {
+            client: client,
+            connection: connection,
+
             uuid: None,
             username: None,
 
@@ -46,5 +68,9 @@ impl Session {
     pub fn authenticate(&mut self, token: String) {
         self.token = token;
         self.authenticated = true;
+    }
+
+    pub fn is_authenticated(&self) -> bool {
+        return self.authenticated;
     }
 }
