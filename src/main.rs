@@ -1,11 +1,14 @@
-use std::net::SocketAddr;
-use tokio::net::{ TcpListener, TcpStream };
-use tokio_tungstenite::{ accept_async, tungstenite::{ Bytes, Message } };
-use futures_util::{ SinkExt, StreamExt };
+use futures_util::{SinkExt, StreamExt};
 use paris::*;
+use std::net::SocketAddr;
+use tokio::net::{TcpListener, TcpStream};
+use tokio_tungstenite::{
+    accept_async,
+    tungstenite::{Bytes, Message},
+};
 
-mod messages;
 mod handlers;
+mod messages;
 mod session;
 mod utils;
 
@@ -35,33 +38,50 @@ async fn client(stream: TcpStream, addr: SocketAddr) {
     while let Some(msg) = read.next().await {
         match msg {
             Ok(Message::Binary(data)) => {
-                if !sess.is_authenticated() {
-                    match rmp_serde::from_slice::<handlers::SocketMessage>(&data) {
-                        Ok(msg) => {
-                            info!("<d>({} → me)</d> {:?}", addr, msg);
-
-                            let response = handlers::handle(msg, &mut sess);
-                            if let Some(res) = response {
-                                let buf = rmp_serde
-                                    ::to_vec::<handlers::SocketResponse>(&res)
-                                    .unwrap();
-                                write.send(Message::Binary(Bytes::from(buf))).await.unwrap();
-
-                                info!("<d>(me → {})</d> {:?}", addr, res);
-                            }
-                        }
-                        Err(e) => {
-                            error!("<on red>Error: {}</>", e);
-                        }
-                    }
+                if !sess.authenticated {
+                    handle(addr, &mut write, &mut sess, data).await;
                 } else {
-                    warn!("authgenticated session message");
+                    if data.len() <= 16 {
+                        continue;
+                    }
+
+                    let iv = &data[..16];
+                    let encrypted = &data[16..];
+                    let decrypted = sess.btoken.cbc_decrypt(iv, encrypted);
+                    handle(addr, &mut write, &mut sess, Bytes::from(decrypted)).await;
                 }
             }
             Ok(Message::Close(_)) => {
                 break;
             }
             _ => {}
+        }
+    }
+}
+
+async fn handle(
+    addr: SocketAddr,
+    write: &mut futures_util::stream::SplitSink<
+        tokio_tungstenite::WebSocketStream<TcpStream>,
+        Message,
+    >,
+    sess: &mut session::Session,
+    data: Bytes,
+) {
+    match rmp_serde::from_slice::<handlers::SocketMessage>(&data) {
+        Ok(msg) => {
+            info!("<d>({} → me)</d> {:?}", addr, msg);
+
+            let response = handlers::handle(msg, sess);
+            if let Some(res) = response {
+                let buf = rmp_serde::to_vec::<handlers::SocketResponse>(&res).unwrap();
+                write.send(Message::Binary(Bytes::from(buf))).await.unwrap();
+
+                info!("<d>(me → {})</d> {:?}", addr, res);
+            }
+        }
+        Err(e) => {
+            error!("<on red>Error: {}</>", e);
         }
     }
 }

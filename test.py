@@ -5,6 +5,7 @@ import msgpack
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
+from Crypto.Random import get_random_bytes
 
 
 async def send_identity_request():
@@ -29,6 +30,11 @@ async def send_identity_request():
                     if isinstance(response, bytes):
                         decoded_response = msgpack.unpackb(response, raw=False)
                         print(f"Received token: {decoded_response[1][0]}")
+
+                        iv = get_random_bytes(AES.block_size)
+                        cipher = AES.new(decoded_response[1][0].encode("utf-8"), AES.MODE_CBC, iv)
+                        result = iv + cipher.encrypt(pad(msgpack.packb(["testa", ["hi"]]), AES.block_size))
+                        await websocket.send(result)
 
             except asyncio.TimeoutError:
                 print("No response received within 5 seconds")

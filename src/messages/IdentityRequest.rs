@@ -1,8 +1,8 @@
-use serde::{ Deserialize, Serialize };
 use libaes::Cipher;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{ handlers::SocketResponse, session::Session };
+use crate::{handlers::SocketResponse, session::Session};
 
 #[derive(Deserialize, Debug)]
 pub struct Message {
@@ -36,12 +36,10 @@ pub fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> {
     let cipher = Cipher::new_128(key);
 
     let expected = cipher.cbc_encrypt(iv.as_bytes(), plaintext);
-    sess.set_authenticity(base16ct::lower::encode_string(&expected));
+    sess.authenticity = base16ct::lower::encode_string(&expected);
 
-    return Some(
-        SocketResponse::IdentityRequest(Response {
-            nonce: nonce,
-            iv: iv,
-        })
-    );
+    return Some(SocketResponse::IdentityRequest(Response {
+        nonce: nonce,
+        iv: iv,
+    }));
 }

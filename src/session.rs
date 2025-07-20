@@ -1,5 +1,6 @@
+use libaes::Cipher;
+use tokio_postgres::{NoTls, Socket, tls::NoTlsStream};
 use uuid::Uuid;
-use tokio_postgres::{ tls::NoTlsStream, NoTls, Socket };
 
 use crate::utils;
 
@@ -11,9 +12,10 @@ pub struct Session {
     uuid: Option<Uuid>,
     username: Option<String>,
 
-    token: String,
-    authenticity: String,
-    authenticated: bool,
+    pub token: String,
+    pub btoken: Cipher,
+    pub authenticity: String,
+    pub authenticated: bool,
 }
 
 #[allow(dead_code)]
@@ -24,12 +26,15 @@ impl Session {
             host = "postgres";
         }
 
-        let (client, connection) = tokio_postgres
-            ::connect(
-                &format!("user=connectorlib password=connectorlib dbname=connectorlib host={}", host),
-                NoTls
-            ).await
-            .unwrap();
+        let (client, connection) = tokio_postgres::connect(
+            &format!(
+                "user=connectorlib password=connectorlib dbname=connectorlib host={}",
+                host
+            ),
+            NoTls,
+        )
+        .await
+        .unwrap();
 
         Self {
             client: client,
@@ -39,6 +44,7 @@ impl Session {
             username: None,
 
             token: "".to_string(),
+            btoken: Cipher::new_128(&[0; 16]),
             authenticity: "".to_string(),
             authenticated: false,
         }
@@ -55,22 +61,5 @@ impl Session {
         }
 
         return Some((self.uuid.unwrap(), self.username.clone().unwrap()));
-    }
-
-    pub fn set_authenticity(&mut self, authenticity: String) {
-        self.authenticity = authenticity;
-    }
-
-    pub fn is_authenticity(&self, authenticity: String) -> bool {
-        return self.authenticity.eq(&authenticity);
-    }
-
-    pub fn authenticate(&mut self, token: String) {
-        self.token = token;
-        self.authenticated = true;
-    }
-
-    pub fn is_authenticated(&self) -> bool {
-        return self.authenticated;
     }
 }
