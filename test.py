@@ -14,18 +14,18 @@ async def send_identity_request():
     try:
         async with websockets.connect(uri) as websocket:
             print(f"Connected to {uri}")
-            await websocket.send(msgpack.packb(["IdentityRequest", ["62eaea5762cb458c8007d6c5e652c2a7", "floridarosie"]]))
+            await websocket.send(msgpack.packb(["IdentityRequest", ["84b165b0030c4e548084cabf6deed349"]]))
 
             try:
                 response = await asyncio.wait_for(websocket.recv(), timeout=5.0)
                 if isinstance(response, bytes):
                     decoded_response = msgpack.unpackb(response, raw=False)
 
-                    plaintext = f"{decoded_response[1][0]}62eaea5762cb458c8007d6c5e652c2a7floridarosie"
+                    plaintext = f"{decoded_response[1][0]}84b165b0030c4e548084cabf6deed349"
                     cipher = AES.new(b"This is the key!", AES.MODE_CBC, decoded_response[1][1].encode("utf-8"))
                     result = cipher.encrypt(pad(plaintext.encode("utf-8"), AES.block_size))
 
-                    await websocket.send(msgpack.packb(["IdentityChallenge", [binascii.hexlify(result)]]))
+                    await websocket.send(msgpack.packb(["IdentityChallenge", [binascii.hexlify(result), "48c6bc6d5af0a1c8a3a180401d8b6ea52553cef8"]]))  # server id
                     response = await asyncio.wait_for(websocket.recv(), timeout=5.0)
                     if isinstance(response, bytes):
                         decoded_response = msgpack.unpackb(response, raw=False)

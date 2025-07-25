@@ -60,7 +60,29 @@ impl Session {
 
     pub async fn set_identity(&mut self, uuid: Uuid) -> Result<(), String> {
         self.uuid = Some(uuid);
-        self.username = Some(username);
+
+        let response = self
+            .hclient
+            .get(format!(
+                "https://playerdb.co/api/player/minecraft/{}",
+                uuid.to_string()
+            ))
+            .send()
+            .await;
+
+        if response.is_err() {
+            return Err("Failed to send request".to_string());
+        }
+
+        let response = response.unwrap().json::<serde_json::Value>().await.unwrap();
+        let username = response["data"]["player"]["username"].as_str();
+
+        if username.is_none() || username.unwrap().is_empty() {
+            return Err("Failed to get username".to_string());
+        }
+
+        self.username = Some(username.unwrap().to_string());
+        Ok(())
     }
 
     pub fn get_identity(&self) -> Option<(Uuid, String)> {

@@ -2,11 +2,12 @@ use libaes::Cipher;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{handlers::SocketResponse, session::Session};
+use crate::{DEV, handlers::SocketResponse, session::Session};
 
 #[derive(Deserialize, Debug)]
 pub struct Message {
     authenticity: String,
+    serverid: String,
 }
 
 #[derive(Serialize, Debug)]
@@ -15,24 +16,38 @@ pub struct Response {
 }
 
 pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> {
-    if sess.authenticity.eq(&msg.authenticity) {
-        let token = Uuid::new_v4()
-            .to_string()
-            .replace("-", "")
-            .chars()
-            .take(16)
-            .collect::<String>();
-        assert!(token.len() == 16);
+    let identity = sess.get_identity().unwrap();
+    if !sess.authenticity.eq(&msg.authenticity) {
+        return None;
+    }
 
-        let btoken: [u8; 16] = token
-            .clone()
-            .as_bytes()
-            .try_into()
-            .expect("Invalid token length");
+    if !DEV {
+        let response = sess.hclient.get(format!("https://sessionserver.mojang.com/session/minecraft/hasJoined?username={}&serverId={}", identity.1.clone(), msg.serverid)).send().await.unwrap();
+        let response = response.json::<serde_json::Value>().await;
 
-        sess.token = token.clone();
-        sess.btoken = Cipher::new_128(&btoken);
-        sess.authenticated = true;
+        if response.is_err() || !response.unwrap().as_object().unwrap().contains_key("id") {
+            // failed to auth with mojang
+            return None;
+        }
+    }
+
+    let token = Uuid::new_v4()
+        .to_string()
+        .replace("-", "")
+        .chars()
+        .take(16)
+        .collect::<String>();
+    assert!(token.len() == 16);
+
+    let btoken: [u8; 16] = token
+        .clone()
+        .as_bytes()
+        .try_into()
+        .expect("Invalid token length");
+
+    sess.token = token.clone();
+    sess.btoken = Cipher::new_128(&btoken);
+    sess.authenticated = true;
 
     let player = sess
         .pclient
@@ -54,7 +69,7 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
 
     sess.id = Some(player[0].get::<usize, i32>(0));
 
-        return Some(SocketResponse::IdentityChallenge(Response {
-            token: token.clone(),
-        }));
+    return Some(SocketResponse::IdentityChallenge(Response {
+        token: token.clone(),
+    }));
 }

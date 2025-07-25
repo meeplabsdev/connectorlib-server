@@ -12,6 +12,8 @@ mod messages;
 mod session;
 mod utils;
 
+const DEV: bool = false;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let listener = TcpListener::bind("127.0.0.1:3000").await?;
@@ -73,7 +75,7 @@ async fn handle(
             info!("<d>({} → me)</d> {:?}", addr, msg);
 
             let response = handlers::handle(msg, sess);
-            if let Some(res) = response {
+            if let Some(res) = response.await {
                 let buf = rmp_serde::to_vec::<handlers::SocketResponse>(&res).unwrap();
                 write.send(Message::Binary(Bytes::from(buf))).await.unwrap();
 
