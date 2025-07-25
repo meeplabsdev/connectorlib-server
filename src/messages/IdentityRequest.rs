@@ -16,7 +16,7 @@ pub struct Response {
     iv: String,
 }
 
-pub fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> {
+pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> {
     if msg.uuid.len() != 32 {
         return None;
     }

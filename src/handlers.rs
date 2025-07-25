@@ -17,9 +17,9 @@ pub enum SocketResponse {
     IdentityRequest(IdentityRequest::Response),
 }
 
-pub fn handle(message: SocketMessage, sess: &mut Session) -> Option<SocketResponse> {
+pub async fn handle(message: SocketMessage, sess: &mut Session) -> Option<SocketResponse> {
     match message {
-        SocketMessage::IdentityChallenge(msg) => IdentityChallenge::handle(msg, sess),
-        SocketMessage::IdentityRequest(msg) => IdentityRequest::handle(msg, sess),
+        SocketMessage::IdentityChallenge(msg) => IdentityChallenge::handle(msg, sess).await,
+        SocketMessage::IdentityRequest(msg) => IdentityRequest::handle(msg, sess).await,
     }
 }

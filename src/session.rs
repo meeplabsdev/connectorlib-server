@@ -36,6 +36,12 @@ impl Session {
         .await
         .unwrap();
 
+        tokio::spawn(async move {
+            if let Err(e) = connection.await {
+                eprintln!("connection error: {}", e);
+            }
+        });
+
         Self {
             client: client,
             connection: connection,
@@ -50,7 +56,7 @@ impl Session {
         }
     }
 
-    pub fn set_identity(&mut self, uuid: Uuid, username: String) {
+    pub async fn set_identity(&mut self, uuid: Uuid) -> Result<(), String> {
         self.uuid = Some(uuid);
         self.username = Some(username);
     }

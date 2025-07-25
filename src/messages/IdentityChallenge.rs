@@ -14,7 +14,7 @@ pub struct Response {
     token: String,
 }
 
-pub fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> {
+pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> {
     if sess.authenticity.eq(&msg.authenticity) {
         let token = Uuid::new_v4()
             .to_string()

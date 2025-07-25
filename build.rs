@@ -19,7 +19,7 @@ fn main() {
                 use crate::session::Session;\n\n\
                 #[derive(Deserialize, Debug)]\n\
                 #[serde(tag = \"id\", content = \"value\")]\n\
-                pub enum SocketMessage {\n"
+                pub enum SocketMessage {\n",
     );
 
     let entries = fs::read_dir(messages_dir).expect("Failed to read messages directory");
@@ -53,7 +53,7 @@ fn main() {
         "}\n\n\
                 #[derive(Serialize, Debug)]\n\
                 #[serde(tag = \"id\", content = \"value\")]\n\
-                pub enum SocketResponse {\n"
+                pub enum SocketResponse {\n",
     );
 
     for module_name in module_names.clone() {
@@ -62,17 +62,15 @@ fn main() {
 
     handlers_contents.push_str(
         "}\n\n\
-        pub fn handle(message: SocketMessage, sess: &mut Session) -> Option<SocketResponse> {
-    match message {\n"
+        pub async fn handle(message: SocketMessage, sess: &mut Session) -> Option<SocketResponse> {
+    match message {\n",
     );
 
     for module_name in module_names.clone() {
-        handlers_contents.push_str(
-            &format!(
-                "        SocketMessage::{m}(msg) => {m}::handle(msg, sess),\n",
-                m = module_name
-            )
-        );
+        handlers_contents.push_str(&format!(
+            "        SocketMessage::{m}(msg) => {m}::handle(msg, sess).await,\n",
+            m = module_name
+        ));
     }
 
     handlers_contents.push_str("    }\n}\n");
