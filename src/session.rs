@@ -1,16 +1,17 @@
 use libaes::Cipher;
-use tokio_postgres::{NoTls, Socket, tls::NoTlsStream};
+use tokio_postgres::NoTls;
 use uuid::Uuid;
 
 use crate::utils;
 
 #[allow(dead_code)]
 pub struct Session {
-    pub client: tokio_postgres::Client,
-    connection: tokio_postgres::Connection<Socket, NoTlsStream>,
+    pub pclient: tokio_postgres::Client,
+    pub hclient: reqwest::Client,
 
     uuid: Option<Uuid>,
     username: Option<String>,
+    pub id: Option<i32>,
 
     pub token: String,
     pub btoken: Cipher,
@@ -43,11 +44,12 @@ impl Session {
         });
 
         Self {
-            client: client,
-            connection: connection,
+            pclient: client,
+            hclient: reqwest::Client::new(),
 
             uuid: None,
             username: None,
+            id: None,
 
             token: "".to_string(),
             btoken: Cipher::new_128(&[0; 16]),

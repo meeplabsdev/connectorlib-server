@@ -34,10 +34,27 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
         sess.btoken = Cipher::new_128(&btoken);
         sess.authenticated = true;
 
+    let player = sess
+        .pclient
+        .query(
+            "
+                WITH ins AS (
+                    INSERT INTO player (uuid, username, added, active)
+                    VALUES ($1, $2, NOW(), NOW())
+                    ON CONFLICT (uuid) DO NOTHING
+                    RETURNING *
+                )
+                SELECT id FROM ins
+                UNION ALL
+                SELECT id FROM player WHERE uuid = $1 AND NOT EXISTS (SELECT 1 FROM ins)",
+            &[&identity.0.to_string().replace("-", ""), &identity.1],
+        )
+        .await
+        .unwrap();
+
+    sess.id = Some(player[0].get::<usize, i32>(0));
+
         return Some(SocketResponse::IdentityChallenge(Response {
             token: token.clone(),
         }));
-    }
-
-    return None;
 }
