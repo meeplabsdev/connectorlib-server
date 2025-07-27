@@ -21,6 +21,7 @@ pub struct Session {
     pub uuid: Option<Uuid>,
     pub username: Option<String>,
     pub playerid: Option<i32>,
+    pub serverid: Option<i32>,
 
     pub token: String,
     pub btoken: Cipher,
@@ -65,6 +66,7 @@ impl Session {
             uuid: None,
             username: None,
             playerid: None,
+            serverid: None,
 
             token: "".to_string(),
             btoken: Cipher::new_128(&[0; 16]),
@@ -79,29 +81,13 @@ impl Session {
     }
 
     pub async fn set_identity(&mut self, uuid: Uuid) -> Result<(), String> {
-        self.uuid = Some(uuid);
-
-        let response = self
-            .hclient
-            .get(format!(
-                "https://playerdb.co/api/player/minecraft/{}",
-                uuid.to_string()
-            ))
-            .send()
-            .await;
-
+        let response = utils::get_username(uuid, &self.hclient).await;
         if response.is_err() {
-            return Err("Failed to send request".to_string());
+            return Err(response.err().unwrap());
         }
 
-        let response = response.unwrap().json::<serde_json::Value>().await.unwrap();
-        let username = response["data"]["player"]["username"].as_str();
-
-        if username.is_none() || username.unwrap().is_empty() {
-            return Err("Failed to get username".to_string());
-        }
-
-        self.username = Some(username.unwrap().to_string());
+        self.username = Some(response.unwrap());
+        self.uuid = Some(uuid);
         Ok(())
     }
 }
