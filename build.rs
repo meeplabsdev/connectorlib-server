@@ -17,6 +17,7 @@ fn main() {
         "use serde::{ Deserialize, Serialize };\n\n\
                 use crate::messages::*;\n\
                 use crate::session::Session;\n\n\
+                #[allow(dead_code)]\n\
                 #[derive(Deserialize, Debug)]\n\
                 #[serde(tag = \"id\", content = \"value\")]\n\
                 pub enum SocketMessage {\n",
@@ -51,6 +52,7 @@ fn main() {
 
     handlers_contents.push_str(
         "}\n\n\
+                #[allow(dead_code)]\n\
                 #[derive(Serialize, Debug)]\n\
                 #[serde(tag = \"id\", content = \"value\")]\n\
                 pub enum SocketResponse {\n",
