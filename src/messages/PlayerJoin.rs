@@ -15,30 +15,36 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
         return None;
     }
 
-    let _ = sess
+    let server = sess
         .pclient
-        .execute(
+        .query(
             "
                     WITH ins AS (
                         INSERT INTO server (name, ip, added, active)
                         VALUES ($1, $1, NOW(), NOW())
                         ON CONFLICT (ip) DO UPDATE
                         SET active = NOW()
-                        RETURNING *
+                        RETURNING id
                     ),
                     sel AS (
                         SELECT id FROM ins
                         UNION ALL
                         SELECT id FROM server WHERE ip = $1 AND NOT EXISTS (SELECT 1 FROM ins)
+                    ),
+                    ups AS (
+                        INSERT INTO server_player (player, server, added, active)
+                        SELECT $2, id, NOW(), NOW() FROM sel
+                        ON CONFLICT (player, server) DO UPDATE
+                        SET active = NOW()
                     )
-
-                    INSERT INTO server_player (player, server, added, active)
-                    SELECT $2, id, NOW(), NOW() FROM sel
-                    ON CONFLICT (player, server) DO UPDATE
-                    SET active = NOW()",
+                    
+                    SELECT id FROM sel",
             &[&msg.ip, &sess.playerid.unwrap()],
         )
-        .await;
+        .await
+        .unwrap();
+
+    sess.serverid = Some(server[0].get::<usize, i32>(0));
 
     return None;
 }

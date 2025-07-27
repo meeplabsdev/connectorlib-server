@@ -27,8 +27,7 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
                 AND sp.player = $2",
             &[&msg.ip, &sess.playerid],
         )
-        .await
-        .unwrap();
+        .await;
 
     let _ = sess
         .pclient
@@ -39,8 +38,9 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
                 WHERE s.ip = $1",
             &[&msg.ip],
         )
-        .await
-        .unwrap();
+        .await;
+
+    sess.serverid = None;
 
     return None;
 }
