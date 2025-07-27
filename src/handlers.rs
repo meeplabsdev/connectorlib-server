@@ -3,6 +3,7 @@ use serde::{ Deserialize, Serialize };
 use crate::messages::*;
 use crate::session::Session;
 
+#[allow(dead_code)]
 #[derive(Deserialize, Debug)]
 #[serde(tag = "id", content = "value")]
 pub enum SocketMessage {
@@ -10,6 +11,7 @@ pub enum SocketMessage {
     IdentityRequest(IdentityRequest::Message),
 }
 
+#[allow(dead_code)]
 #[derive(Serialize, Debug)]
 #[serde(tag = "id", content = "value")]
 pub enum SocketResponse {
