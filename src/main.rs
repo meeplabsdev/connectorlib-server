@@ -16,8 +16,8 @@ const DEV: bool = false;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let listener = TcpListener::bind("127.0.0.1:3000").await?;
-    success!("Server started on :3000");
+    let listener = TcpListener::bind("127.0.0.1:3740").await?;
+    success!("Server started on :3740");
 
     loop {
         let (stream, addr) = listener.accept().await?;
@@ -37,7 +37,10 @@ async fn client(stream: TcpStream, addr: SocketAddr) {
     let (mut write, mut read) = ws_stream.split();
     let mut sess: session::Session = session::Session::new().await;
 
+    info!("<d>({})</d> Connected", addr);
+
     while let Some(msg) = read.next().await {
+        sess.limiter.until_ready().await;
         match msg {
             Ok(Message::Binary(data)) => {
                 if !sess.authenticated {
@@ -54,7 +57,7 @@ async fn client(stream: TcpStream, addr: SocketAddr) {
                 }
             }
             Ok(Message::Close(_)) => {
-                break;
+                sess.close();
             }
             _ => {}
         }
