@@ -23,6 +23,9 @@ if __name__ == "__main__":
     with open("config.sql", "r") as f:
         cur.execute(f.read().strip())
 
+    cur.execute("ALTER DATABASE postgres SET timezone TO 'Europe/London'")
+    cur.execute("SELECT pg_reload_conf()")
+
     try:
         conn.commit()
     except psycopg2.Error as e:
