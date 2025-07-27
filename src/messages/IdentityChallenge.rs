@@ -16,13 +16,12 @@ pub struct Response {
 }
 
 pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> {
-    let identity = sess.get_identity().unwrap();
-    if !sess.authenticity.eq(&msg.authenticity) {
+    if !sess.authenticity.eq(&msg.authenticity) || sess.username.is_none() || sess.uuid.is_none() {
         return None;
     }
 
     if !DEV {
-        let response = sess.hclient.get(format!("https://sessionserver.mojang.com/session/minecraft/hasJoined?username={}&serverId={}", identity.1.clone(), msg.serverid)).send().await.unwrap();
+        let response = sess.hclient.get(format!("https://sessionserver.mojang.com/session/minecraft/hasJoined?username={}&serverId={}", sess.username.clone().unwrap(), msg.serverid)).send().await.unwrap();
         let response = response.json::<serde_json::Value>().await;
 
         if response.is_err() || !response.unwrap().as_object().unwrap().contains_key("id") {
@@ -54,20 +53,24 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
         .query(
             "
                 WITH ins AS (
-                    INSERT INTO player (uuid, username, added, active)
-                    VALUES ($1, $2, NOW(), NOW())
-                    ON CONFLICT (uuid) DO NOTHING
+                    INSERT INTO player (uuid, username, reputation, added, active)
+                    VALUES ($1, $2, 0, NOW(), NOW())
+                    ON CONFLICT (uuid) DO UPDATE
+                    SET active = NOW()
                     RETURNING *
                 )
                 SELECT id FROM ins
                 UNION ALL
                 SELECT id FROM player WHERE uuid = $1 AND NOT EXISTS (SELECT 1 FROM ins)",
-            &[&identity.0.to_string().replace("-", ""), &identity.1],
+            &[
+                &sess.uuid.unwrap().to_string().replace("-", ""),
+                &sess.username.clone().unwrap(),
+            ],
         )
         .await
         .unwrap();
 
-    sess.id = Some(player[0].get::<usize, i32>(0));
+    sess.playerid = Some(player[0].get::<usize, i32>(0));
 
     return Some(SocketResponse::IdentityChallenge(Response {
         token: token.clone(),
