@@ -57,6 +57,7 @@ async fn client(stream: TcpStream, addr: SocketAddr) {
                 }
             }
             Ok(Message::Close(_)) => {
+                warn!("<d>({})</d> Disconnected", addr);
                 sess.close();
             }
             _ => {}
