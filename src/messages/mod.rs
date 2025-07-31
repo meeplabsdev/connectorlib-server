@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
-pub mod ChatData;
+pub mod ClientChat;
+pub mod ClientPosition;
 pub mod IdentityChallenge;
 pub mod IdentityRequest;
 pub mod NetworkData;
