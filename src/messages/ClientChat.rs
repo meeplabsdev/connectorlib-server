@@ -17,6 +17,7 @@ pub struct Response {}
 pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> {
     if !sess.authenticated
         || sess.playerid.is_none()
+        || sess.serverid.is_none()
         || msg.message.is_empty()
         || msg.mtype.is_empty()
     {
