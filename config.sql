@@ -104,7 +104,7 @@ CREATE TABLE "attributes" (
   "saturation" smallint,
   "exhaustion" smallint,
   "exp_level" int,
-  "exp_prog" float,
+  "exp_prog" float4,
   "gamemode" serial,
   "ping" smallint,
   "fps" smallint
@@ -132,8 +132,8 @@ CREATE TABLE "effect_instance" (
 CREATE TABLE "position" (
   "id" SERIAL PRIMARY KEY,
   "server_player" serial,
-  "position" float[3],
-  "velocity" float[3],
+  "position" float4[3],
+  "velocity" float4[3],
   "dimension" serial,
   "sneaking" bool,
   "sprinting" bool,
