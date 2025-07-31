@@ -147,7 +147,8 @@ CREATE TABLE "position" (
 CREATE TABLE "nearby" (
   "id" SERIAL PRIMARY KEY,
   "position" serial,
-  "player" serial
+  "player" serial,
+  "location" float4[3]
 );
 
 CREATE UNIQUE INDEX "unique_player_server" ON "server_player" ("player", "server");
