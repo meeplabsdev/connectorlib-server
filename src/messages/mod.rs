@@ -2,6 +2,7 @@
 pub mod ClientAttributes;
 pub mod ClientChat;
 pub mod ClientChunk;
+pub mod ClientInventory;
 pub mod ClientPosition;
 pub mod IdentityChallenge;
 pub mod IdentityRequest;
