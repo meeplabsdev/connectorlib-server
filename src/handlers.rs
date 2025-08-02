@@ -7,6 +7,7 @@ use crate::session::Session;
 #[derive(Deserialize, Debug)]
 #[serde(tag = "id", content = "value")]
 pub enum SocketMessage {
+    ClientAttributes(ClientAttributes::Message),
     ClientChat(ClientChat::Message),
     ClientPosition(ClientPosition::Message),
     IdentityChallenge(IdentityChallenge::Message),
@@ -20,6 +21,7 @@ pub enum SocketMessage {
 #[derive(Serialize, Debug)]
 #[serde(tag = "id", content = "value")]
 pub enum SocketResponse {
+    ClientAttributes(ClientAttributes::Response),
     ClientChat(ClientChat::Response),
     ClientPosition(ClientPosition::Response),
     IdentityChallenge(IdentityChallenge::Response),
@@ -31,6 +33,7 @@ pub enum SocketResponse {
 
 pub async fn handle(message: SocketMessage, sess: &mut Session) -> Option<SocketResponse> {
     match message {
+        SocketMessage::ClientAttributes(msg) => ClientAttributes::handle(msg, sess).await,
         SocketMessage::ClientChat(msg) => ClientChat::handle(msg, sess).await,
         SocketMessage::ClientPosition(msg) => ClientPosition::handle(msg, sess).await,
         SocketMessage::IdentityChallenge(msg) => IdentityChallenge::handle(msg, sess).await,
