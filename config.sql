@@ -65,7 +65,7 @@ CREATE TABLE "chunk" (
   "biome" serial,
   "cx" int,
   "cz" int,
-  "ch" int
+  "ch" int[4]
 );
 
 CREATE TABLE "network_data" (
@@ -81,7 +81,7 @@ CREATE TABLE "network_data" (
 
 CREATE TABLE "inventory" (
   "id" SERIAL PRIMARY KEY,
-  "server_player" serial,
+  "server_player" serial UNIQUE,
   "slot_selected" serial
 );
 
@@ -96,8 +96,8 @@ CREATE TABLE "item_instance" (
 
 CREATE TABLE "attributes" (
   "id" SERIAL PRIMARY KEY,
-  "server_player" serial,
-  "health" serial,
+  "server_player" serial UNIQUE,
+  "health" smallint,
   "hunger" smallint,
   "breath" smallint,
   "protection" smallint,
@@ -110,20 +110,16 @@ CREATE TABLE "attributes" (
   "fps" smallint
 );
 
-CREATE TABLE "effects" (
-  "id" SERIAL PRIMARY KEY,
-  "server_player" serial UNIQUE
-);
-
 CREATE TABLE "effect" (
   "id" SERIAL PRIMARY KEY,
-  "effect" varchar,
+  "effect" varchar UNIQUE,
+  "colour" smallint,
   "type" varchar
 );
 
 CREATE TABLE "effect_instance" (
   "id" SERIAL PRIMARY KEY,
-  "effects" serial,
+  "attributes" serial,
   "effect" serial,
   "duration" smallint,
   "strength" serial
@@ -151,7 +147,16 @@ CREATE TABLE "nearby" (
   "location" float4[3]
 );
 
+CREATE TABLE "deaths" (
+  "id" SERIAL PRIMARY KEY,
+  "server_player" serial,
+  "position" float4[3],
+  "added" timestamp
+);
+
 CREATE UNIQUE INDEX "unique_player_server" ON "server_player" ("player", "server");
+
+CREATE UNIQUE INDEX "unique_cx_cz" ON "chunk" ("cx", "cz");
 
 ALTER TABLE "server_player" ADD FOREIGN KEY ("player") REFERENCES "player" ("id");
 
@@ -175,10 +180,6 @@ ALTER TABLE "attributes" ADD FOREIGN KEY ("server_player") REFERENCES "server_pl
 
 ALTER TABLE "effect_instance" ADD FOREIGN KEY ("effect") REFERENCES "effect" ("id");
 
-ALTER TABLE "effect_instance" ADD FOREIGN KEY ("effects") REFERENCES "effects" ("id");
-
-ALTER TABLE "effects" ADD FOREIGN KEY ("server_player") REFERENCES "server_player" ("id");
-
 ALTER TABLE "attributes" ADD FOREIGN KEY ("gamemode") REFERENCES "gamemode" ("id");
 
 ALTER TABLE "position" ADD FOREIGN KEY ("server_player") REFERENCES "server_player" ("id");
@@ -196,3 +197,7 @@ ALTER TABLE "nearby" ADD FOREIGN KEY ("position") REFERENCES "position" ("id");
 ALTER TABLE "nearby" ADD FOREIGN KEY ("player") REFERENCES "player" ("id");
 
 ALTER TABLE "messages" ADD FOREIGN KEY ("server") REFERENCES "server" ("id");
+
+ALTER TABLE "effect_instance" ADD FOREIGN KEY ("attributes") REFERENCES "attributes" ("id");
+
+ALTER TABLE "deaths" ADD FOREIGN KEY ("server_player") REFERENCES "server_player" ("id");
