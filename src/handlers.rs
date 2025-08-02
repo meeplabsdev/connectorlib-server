@@ -15,6 +15,7 @@ pub enum SocketMessage {
     NetworkData(NetworkData::Message),
     PlayerJoin(PlayerJoin::Message),
     PlayerQuit(PlayerQuit::Message),
+    PlayerRespawn(PlayerRespawn::Message),
 }
 
 #[allow(dead_code)]
@@ -29,6 +30,7 @@ pub enum SocketResponse {
     NetworkData(NetworkData::Response),
     PlayerJoin(PlayerJoin::Response),
     PlayerQuit(PlayerQuit::Response),
+    PlayerRespawn(PlayerRespawn::Response),
 }
 
 pub async fn handle(message: SocketMessage, sess: &mut Session) -> Option<SocketResponse> {
@@ -41,5 +43,6 @@ pub async fn handle(message: SocketMessage, sess: &mut Session) -> Option<Socket
         SocketMessage::NetworkData(msg) => NetworkData::handle(msg, sess).await,
         SocketMessage::PlayerJoin(msg) => PlayerJoin::handle(msg, sess).await,
         SocketMessage::PlayerQuit(msg) => PlayerQuit::handle(msg, sess).await,
+        SocketMessage::PlayerRespawn(msg) => PlayerRespawn::handle(msg, sess).await,
     }
 }

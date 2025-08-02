@@ -7,3 +7,4 @@ pub mod IdentityRequest;
 pub mod NetworkData;
 pub mod PlayerJoin;
 pub mod PlayerQuit;
+pub mod PlayerRespawn;
