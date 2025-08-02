@@ -9,6 +9,7 @@ use crate::session::Session;
 pub enum SocketMessage {
     ClientAttributes(ClientAttributes::Message),
     ClientChat(ClientChat::Message),
+    ClientChunk(ClientChunk::Message),
     ClientPosition(ClientPosition::Message),
     IdentityChallenge(IdentityChallenge::Message),
     IdentityRequest(IdentityRequest::Message),
@@ -24,6 +25,7 @@ pub enum SocketMessage {
 pub enum SocketResponse {
     ClientAttributes(ClientAttributes::Response),
     ClientChat(ClientChat::Response),
+    ClientChunk(ClientChunk::Response),
     ClientPosition(ClientPosition::Response),
     IdentityChallenge(IdentityChallenge::Response),
     IdentityRequest(IdentityRequest::Response),
@@ -37,6 +39,7 @@ pub async fn handle(message: SocketMessage, sess: &mut Session) -> Option<Socket
     match message {
         SocketMessage::ClientAttributes(msg) => ClientAttributes::handle(msg, sess).await,
         SocketMessage::ClientChat(msg) => ClientChat::handle(msg, sess).await,
+        SocketMessage::ClientChunk(msg) => ClientChunk::handle(msg, sess).await,
         SocketMessage::ClientPosition(msg) => ClientPosition::handle(msg, sess).await,
         SocketMessage::IdentityChallenge(msg) => IdentityChallenge::handle(msg, sess).await,
         SocketMessage::IdentityRequest(msg) => IdentityRequest::handle(msg, sess).await,

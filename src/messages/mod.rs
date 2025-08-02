@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 pub mod ClientAttributes;
 pub mod ClientChat;
+pub mod ClientChunk;
 pub mod ClientPosition;
 pub mod IdentityChallenge;
 pub mod IdentityRequest;
