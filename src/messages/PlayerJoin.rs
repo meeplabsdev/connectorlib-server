@@ -38,7 +38,7 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
                         SET active = NOW()
                     )
                     
-                    SELECT id FROM sel",
+                    SELECT id FROM sel;",
             &[&msg.ip, &sess.playerid.unwrap()],
         )
         .await

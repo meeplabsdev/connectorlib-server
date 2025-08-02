@@ -25,7 +25,7 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
                 INSERT INTO network_data (player, ip, user_agent, via, forwarded, added, active)
                 VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
                 ON CONFLICT (ip) DO UPDATE
-                SET active = NOW()",
+                SET active = NOW();",
             &[
                 &sess.playerid,
                 &msg.ip,

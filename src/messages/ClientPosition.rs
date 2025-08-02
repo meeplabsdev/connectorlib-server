@@ -45,7 +45,7 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
     let result = sess
         .pclient
         .query(
-            "SELECT uuid, username FROM player WHERE uuid = ANY($1)",
+            "SELECT uuid, username FROM player WHERE uuid = ANY($1);",
             &[&uuids],
         )
         .await

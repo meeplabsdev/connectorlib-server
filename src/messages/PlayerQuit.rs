@@ -24,7 +24,7 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
                 FROM server s
                 WHERE sp.server = s.id
                 AND s.ip = $1
-                AND sp.player = $2",
+                AND sp.player = $2;",
             &[&msg.ip, &sess.playerid],
         )
         .await;
@@ -35,7 +35,7 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
             "
                 UPDATE server s
                 SET active = NOW()
-                WHERE s.ip = $1",
+                WHERE s.ip = $1;",
             &[&msg.ip],
         )
         .await;

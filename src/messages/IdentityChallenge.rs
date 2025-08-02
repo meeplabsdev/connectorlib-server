@@ -61,7 +61,7 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
                 )
                 SELECT id FROM ins
                 UNION ALL
-                SELECT id FROM player WHERE uuid = $1 AND NOT EXISTS (SELECT 1 FROM ins)",
+                SELECT id FROM player WHERE uuid = $1 AND NOT EXISTS (SELECT 1 FROM ins);",
             &[
                 &sess.uuid.unwrap().to_string().replace("-", ""),
                 &sess.username.clone().unwrap(),
