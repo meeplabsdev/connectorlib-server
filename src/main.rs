@@ -16,13 +16,25 @@ mod utils;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
-    let listener = TcpListener::bind("127.0.0.1:3740").await?;
+    utils::init_db().await;
+
+    let listener = TcpListener::bind("0.0.0.0:3740").await?;
     success!("Server started on :3740");
 
     if std::env::var("CL_DEV").is_ok() {
         warn!(
             "Server running in dev mode (offline mode). This configuration will not attempt to authenticate valid mojang accounts. Unset the CL_DEV environment variable to enable online mode."
-        )
+        );
+    }
+
+    if std::env::var("CL_KEY").is_err() {
+        error!("The encryption key is not set. Set it with the CL_KEY environment variable.");
+        return Err("Could not find CL_KEY".into());
+    }
+
+    if std::env::var("CL_KEY").unwrap().len() != 16 {
+        error!("The encryption key is not 16 characters long. Choose a key with a length of 16.");
+        return Err("Invalid CL_KEY".into());
     }
 
     loop {
