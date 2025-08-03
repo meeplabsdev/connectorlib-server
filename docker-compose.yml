@@ -1,4 +1,20 @@
 services:
+  connectorlib:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      CL_KEY: CHANGEMECHANGEME
+    ports:
+      - "3740:3740"
+    depends_on:
+      - postgres
+      - pgbouncer
+    networks:
+      - db_network
+    container_name: connectorlib
+    restart: on-failure
+
   postgres:
     environment:
       POSTGRES_USER: connectorlib
@@ -19,8 +35,6 @@ services:
       MAX_DB_CONNECTIONS: 4000
       DEFAULT_POOL_SIZE: 80
       AUTH_TYPE: scram-sha-256
-    ports:
-      - 5432:5432
     volumes:
       - pgbouncer:/etc/pgbouncer
     depends_on:
@@ -31,23 +45,23 @@ services:
     restart: on-failure
     image: rmccaffrey/pgbouncer
 
-  pgadmin:
-    environment:
-      PGADMIN_DEFAULT_EMAIL: connectorlib@local.host
-      PGADMIN_DEFAULT_PASSWORD: connectorlib
-      PGADMIN_DISABLE_POSTFIX: true
-    ports:
-      - 8080:80
-    volumes:
-      - pgadmin:/var/lib/pgadmin
-    networks:
-      - db_network
-    depends_on:
-      - postgres
-      - pgbouncer
-    container_name: pgadmin
-    restart: on-failure
-    image: dpage/pgadmin4
+  # pgadmin:
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: connectorlib@local.host
+  #     PGADMIN_DEFAULT_PASSWORD: connectorlib
+  #     PGADMIN_DISABLE_POSTFIX: true
+  #   ports:
+  #     - 8080:80
+  #   volumes:
+  #     - pgadmin:/var/lib/pgadmin
+  #   networks:
+  #     - db_network
+  #   depends_on:
+  #     - postgres
+  #     - pgbouncer
+  #   container_name: pgadmin
+  #   restart: on-failure
+  #   image: dpage/pgadmin4
 
 networks:
   db_network:
@@ -55,10 +69,5 @@ networks:
 
 volumes:
   postgres:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./data
   pgadmin:
   pgbouncer:
