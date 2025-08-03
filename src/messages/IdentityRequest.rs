@@ -34,7 +34,8 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
         let plaintext = format!("{}{}", nonce, msg.uuid);
         let plaintext = plaintext.as_bytes();
 
-        let key = b"This is the key!";
+        let key = std::env::var("CL_KEY").expect("CL_KEY not found in environment.");
+        let key: &[u8; 16] = key.as_bytes().try_into().unwrap();
         let cipher = Cipher::new_128(key);
 
         let expected = cipher.cbc_encrypt(iv.as_bytes(), plaintext);

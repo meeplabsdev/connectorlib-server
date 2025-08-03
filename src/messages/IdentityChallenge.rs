@@ -2,7 +2,7 @@ use libaes::Cipher;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{DEV, handlers::SocketResponse, session::Session};
+use crate::{handlers::SocketResponse, session::Session};
 
 #[derive(Deserialize, Debug)]
 pub struct Message {
@@ -20,7 +20,7 @@ pub async fn handle(msg: Message, sess: &mut Session) -> Option<SocketResponse> 
         return None;
     }
 
-    if !DEV {
+    if std::env::var("CL_DEV").is_err() {
         let response = sess.hclient.get(format!("https://sessionserver.mojang.com/session/minecraft/hasJoined?username={}&serverId={}", sess.username.clone().unwrap(), msg.serverid)).send().await.unwrap();
         let response = response.json::<serde_json::Value>().await;
 

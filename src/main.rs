@@ -1,3 +1,4 @@
+use dotenv::dotenv;
 use futures_util::{SinkExt, StreamExt};
 use paris::*;
 use std::net::SocketAddr;
@@ -12,12 +13,17 @@ mod messages;
 mod session;
 mod utils;
 
-const DEV: bool = false;
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv().ok();
     let listener = TcpListener::bind("127.0.0.1:3740").await?;
     success!("Server started on :3740");
+
+    if std::env::var("CL_DEV").is_ok() {
+        warn!(
+            "Server running in dev mode (offline mode). This configuration will not attempt to authenticate valid mojang accounts. Unset the CL_DEV environment variable to enable online mode."
+        )
+    }
 
     loop {
         let (stream, addr) = listener.accept().await?;
